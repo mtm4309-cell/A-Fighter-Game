@@ -27,12 +27,16 @@ class Enemy():
 
         self.attack_radius = 100
         self.notice_radius = 320
- 
+
+        self.is_punch_sound_played = False
 
     # --- START OF ASSETS --- #
     
         self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
         self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
+
+        self.punch = pygame.mixer.Sound("Sound Effects/punch.mp3")
+
 
     # --- END OF ASSETS --- #
 
@@ -83,7 +87,7 @@ class Enemy():
         elif distance <= self.attack_radius and distance < self.notice_radius:  #---> If the player is already within the notice radius and then enters into the attack radius, the enemy will attack the player
             state = '_attack'
             self.direction = direction
-        
+            self.is_punch_sound_played = True
         else:
             state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
@@ -124,10 +128,19 @@ class Enemy():
         self.rect = self.image.get_rect(center = self.hitbox.center)
 
 
+    def sound_effects(self):
+        if  self.is_punch_sound_played == True and pygame.mixer.get_busy() == False:
+            self.punch.play()
+            self.is_punch_sound_played = True
+
+            if pygame.mixer.get_busy():
+                self.is_punch_sound_played = False
+
     def update(self):
         self.screen.blit(self.image, (self.rect.x, 300))
         self.move(self.speed)
         self.animate()
+        self.sound_effects()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
     

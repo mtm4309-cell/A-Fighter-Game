@@ -49,9 +49,6 @@ game_over = pygame.mixer.Sound("Sound Effects/game_over.mp3")
 game_pause = pygame.mixer.Sound("Sound Effects/game_pause.mp3")
 
 click_button_sound = pygame.mixer.Sound("Sound Effects/button_click.mp3")
-
-punch = pygame.mixer.Sound("Sound Effects/punch.mp3")
-
 win_level = pygame.mixer.Sound("Sound Effects/win_level.mp3")
 new_level = pygame.mixer.Sound("Sound Effects/new_level.mp3")
 
