@@ -10,7 +10,7 @@ A 2D Fighting game using Python and Pygame. This project aims to further enhance
      [X] - Add movement for the player
      [X] - Add movement for the enemy 
      [] - Add collision detection for both the enemy and the player
-     [] - Add the fighting mechanics for the player and the enemy
+     [X] - Add the fighting mechanics for the player and the enemy
      [] - Add the relevant sound effects for both the player and the enemy
      
      
