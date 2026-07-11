@@ -25,7 +25,7 @@ class Enemy():
         self.rect = self.image.get_rect(topleft=self.pos)
         self.hitbox = self.rect.inflate(-400,-350)
 
-        self.attack_radius = 60
+        self.attack_radius = 100
         self.notice_radius = 320
  
 
@@ -41,7 +41,8 @@ class Enemy():
     def import_enemy_assets(self):
         enemy_path = "Sprites/enemy_sprite/"
 
-        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'west_idle': [], 'west_walk': [], 'west_attack' : []}
+        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 
+                           'west_idle': [], 'west_walk': [], 'west_attack' : []}
 
         for animation in self.animations.keys():
             full_path = enemy_path + animation
@@ -49,10 +50,14 @@ class Enemy():
 
 
     def get_player_distance_directions(self,player):
-        enemy_vector= pygame.math.Vector2(self.rect.center)
-        player_vector = pygame.math.Vector2(player.rect.center)
-        distance = (player_vector-enemy_vector).magnitude()
         
+        enemy_vector= pygame.math.Vector2(self.rect.center)
+        
+        player_vector = pygame.math.Vector2(player.rect.center)
+        
+        distance = (player_vector-enemy_vector).magnitude() #---> Will be important to determine whether the player is within the notice radius or attack radius of the enemy, and then the enemy will react accordingly
+        
+
         if distance > 0:
             direction =(player_vector - enemy_vector).normalize()
         else:
@@ -69,21 +74,20 @@ class Enemy():
 
     def get_status(self,player):
         distance,direction,horizontal_pos = self.get_player_distance_directions(player)
-        #if distance <= self.attack_radius and self.can_attack :
-            #if self.status !='attack':
-             #   self.frame_index=0
-            #self.status = 'attack'
         
-        if distance <= self.notice_radius:
+        if distance <= self.notice_radius and distance > self.attack_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
             state = '_walk'
-            # Instead of separate get_actions, handle the movement vector directly here!
+
             self.direction = direction 
+        
+        elif distance <= self.attack_radius and distance < self.notice_radius:  #---> If the player is already within the notice radius and then enters into the attack radius, the enemy will attack the player
+            state = '_attack'
+            self.direction = direction
+        
         else:
-            state = '_idle'
+            state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
 
-        # 2. Combine the pieces cleanly from scratch
-        # This gives you exactly 'east_walk', 'west_idle', etc.
         new_status = horizontal_pos + state
     
         if new_status != self.status:
@@ -126,6 +130,7 @@ class Enemy():
         self.animate()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
+    
     def enemy_update(self,player):
         self.get_status(player)
         self.get_actions(player)

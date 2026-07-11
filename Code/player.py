@@ -62,8 +62,9 @@ class Player(pygame.sprite.Sprite):
         self.is_sprinting = False
         self.sprint_speed = self.speed * 2
 
-        self.attack = False
-        self.press_attack = False
+        
+        self.is_player_attacking = False
+ 
     # --- END OF PLAYER MOVEMENT --- #
 
     # --- PLAYER ANIMATION --- #
@@ -100,15 +101,6 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_q] and self.press_attack == False:
-            if self.attack == False:
-                self.attack = True
-                self.press_attack = True
-            else:
-                self.attack = False
-
- 
-
         if pygame.KEYDOWN:
             if keys[pygame.K_SPACE]:
                 self.is_jumping = True
@@ -126,7 +118,10 @@ class Player(pygame.sprite.Sprite):
                 self.animation_speed = 0.15
                 self.is_sprinting = False
             
-            
+            if keys[pygame.K_q]: #When the Q button is pressed, the player will attack, as for the change in self.status, that is to be seen in get_status() function
+                if not self.is_player_attacking:
+                    self.is_player_attacking = True
+    
         if self.is_jumping == True:
             self.pos.y -= self.jump_speed
             self.jump_speed -= self.gravity
@@ -152,12 +147,12 @@ class Player(pygame.sprite.Sprite):
         else:
 
             if self.direction.x == 0 and self.direction.y == 0:
-                if self.attack == False:
+                if self.is_player_attacking == False:
                     action = '_idle'
-                elif self.attack == True:
+                elif self.is_player_attacking == True:
                     action  = action.replace('_attack','_idle')
             
-            if self.attack == True:
+            if self.is_player_attacking == True: # ----> The animation for attack 1) will be played only when the player is moving 2) The code for the animation is in the animate() function
                 if 'idle' in action:
                     action = action.replace('_idle','_attack')
                 else:
@@ -173,6 +168,12 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
+
+
+        if self.is_player_attacking == True:  # ----> The reason as to why attack has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the attack animation is played, and then the player goes back to idle or walk animation
+            if self.frame_index >= len(animation) - 1:
+                self.is_player_attacking = False
+                self.frame_index = 0
 
 
         self.image = pygame.transform.scale((animation[int(self.frame_index)]),(150,150))
