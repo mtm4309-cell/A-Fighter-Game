@@ -28,6 +28,9 @@ class Player(pygame.sprite.Sprite):
         self.player_death = pygame.mixer.Sound("Sound Effects/player_death.mp3")
         self.player_heal = pygame.mixer.Sound("Sound Effects/player_heal.wav")
 
+        self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
+        self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
+
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
 
@@ -84,6 +87,8 @@ class Player(pygame.sprite.Sprite):
                            'east_idle': [], 'west_idle':[], 
                            'east_death': [], 'west_death': [],
                            'east_attack':[], 'west_attack':[]}
+
+        self.attack_animations = {'blue_blast': [], 'purple_blast': []}
 
         for animation in self.animations.keys():
             full_path_1 = character_path + animation
@@ -238,6 +243,13 @@ class Player(pygame.sprite.Sprite):
         
         if self.hitbox.colliderect(self.level_box_rect):
             print("COLLISION OCCURING!!")
+
+    def attacking_animation_and_sound_effects(self):
+        # The intent with this subroutine is to handle which attack the player selects, 
+        # playing its corresponding animation and also its sound effect
+
+        pass
+
 
     def update(self):
         self.clock.tick(60)
