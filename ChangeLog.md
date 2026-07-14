@@ -13,3 +13,5 @@
 
     Date: 14 / 07 / 2026
           1) Refining the Attack Animation and Sound Effect of the Enemy [enemy.py] ---> Before the changes, there would be a delay between the animation and the sound effect and the sound would be continous even if the player escaped from the enemy. By increasing the animation speed by a small margin (0.15 --> 0.175), and setting the relevant variable false if the player enters the notice radius, the attack animation is alot more smoother leading to a more cohesive experience for the player
+
+          2) One of the attacks the player can choose is the blue blast; today I drew its animation and the button for which the player must press for the attack to occur, using aseprite. 
