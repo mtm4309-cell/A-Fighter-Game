@@ -25,7 +25,7 @@ class Enemy():
         self.rect = self.image.get_rect(topleft=self.pos)
         self.hitbox = self.rect.inflate(-400,-350)
 
-        self.attack_radius = 100
+        self.attack_radius = 60
         self.notice_radius = 320
 
         self.is_punch_sound_played = False
@@ -82,6 +82,7 @@ class Enemy():
         if distance <= self.notice_radius and distance > self.attack_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
             state = '_walk'
 
+            self.is_punch_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
             self.direction = direction 
         
         elif distance <= self.attack_radius and distance < self.notice_radius:  #---> If the player is already within the notice radius and then enters into the attack radius, the enemy will attack the player
@@ -130,6 +131,7 @@ class Enemy():
 
     def sound_effects(self):
         if  self.is_punch_sound_played == True and pygame.mixer.get_busy() == False:
+            self.animation_speed = 0.175 # ----> The increase in the animation speed is to ensure that the sound effects match with the attack animation, ensuring no delay between the two
             self.punch.play()
             self.is_punch_sound_played = True
 
