@@ -29,6 +29,9 @@ class Player(pygame.sprite.Sprite):
         self.player_heal = pygame.mixer.Sound("Sound Effects/player_heal.wav")
 
         self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
+        #self.blue_blast_button_not_selected = pygame.image.load("UI related/BUTTONS/blue_blast_button_not_selected.png").convert_alpha() ---> Needed for later
+        #self.blue_blast_button_selected = pygame.image.load("UI related/BUTTONS/blue_blast_button_selected.png").convert_alpha() ---> Needed for later
+        
         self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
@@ -57,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.hitbox = self.rect.inflate(-40,-12) #The physics part of the player where collisions will be detected
     
         self.is_jumping = False
-        self.jump_height = 33
+        self.jump_height = 40 #---> The reason for changing this value is to ensure that when the player jumps, they don't collide with the enemy and take damage.
         self.jump_speed = self.jump_height
         self.gravity = 3
 
@@ -165,7 +168,7 @@ class Player(pygame.sprite.Sprite):
         
         self.status = self.status + action
 
-        print(self.status)
+        #print(self.status)
 
     def animate(self):
         animation = self.animations[self.status]
