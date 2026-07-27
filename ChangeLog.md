@@ -19,3 +19,7 @@
    Date: 15 / 07 / 2026
          1) Refining the buttons for the Blue Blast and the Purple Blast --> For the Blue Blast, a design for when the player presses that button and when it is not selected was drawn, and likewise for the Purple Blast
          2) Changing the Jump Height --> Initially, if the player were to jump, it would still be in the proximity of the enemy, but by increasing it, no unnecessary damage will be afflicted onto the player.
+
+   Date: 27 / 07 / 2026
+         1) Finalising the animation for the Purple Blast
+         2) Changing the attack mechanism of the player, where they now must select between the blue blast and the purple blast first and then they can attack. The code initially checks if an attack has been selected, if a selection has not been made, a text will pop up in red asking the player to select an attack.

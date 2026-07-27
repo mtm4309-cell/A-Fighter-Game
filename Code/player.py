@@ -1,3 +1,5 @@
+from ast import If
+
 import pygame , time
 from support import import_folder
 
@@ -69,8 +71,12 @@ class Player(pygame.sprite.Sprite):
         self.sprint_speed = self.speed * 2
 
         
+        # -- Attack related variables -- #
         self.is_player_attacking = False
- 
+        self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
+        self.is_purple_blast_selected = False 
+
+
     # --- END OF PLAYER MOVEMENT --- #
 
     # --- PLAYER ANIMATION --- #
@@ -114,7 +120,6 @@ class Player(pygame.sprite.Sprite):
                 self.is_jumping = True
     
             if keys[pygame.K_r] and self.press_r == False:
-                
                 if self.is_sprinting == False:
                     self.speed = self.sprint_speed
                     self.animation_speed = 0.25
@@ -126,9 +131,21 @@ class Player(pygame.sprite.Sprite):
                 self.animation_speed = 0.15
                 self.is_sprinting = False
             
-            if keys[pygame.K_q]: #When the Q button is pressed, the player will attack, as for the change in self.status, that is to be seen in get_status() function
+            if keys[pygame.K_q]: # When the Q button is pressed, the player will attack,
+                                # as for the change in self.status, that is to be seen in get_status() function
                 if not self.is_player_attacking:
-                    self.is_player_attacking = True
+                    if self.is_blue_blast_selected == False and self.is_purple_blast_selected == False:
+                        self.is_player_attacking = False
+
+                        self.select_attack_test = self.level_font.render(f"Select an attack first!", False, "red")
+                        self.screen.blit(self.select_attack_test, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
+
+                ## -- In the code above, the player must choose between the two attacks available; 
+                ## -- If the player does not select an attack, 
+                # then a message will be displayed on the screen telling the player to select an attack first. -- ##
+
+                else:
+                    self.attacking_animation_and_sound_effects() #---> If in the case that any of the attacks are selected, that is all handled in the subroutine referenced in the code
     
         if self.is_jumping == True:
             self.pos.y -= self.jump_speed
@@ -248,10 +265,10 @@ class Player(pygame.sprite.Sprite):
             print("COLLISION OCCURING!!")
 
     def attacking_animation_and_sound_effects(self):
-        # The intent with this subroutine is to handle which attack the player selects, 
-        # playing its corresponding animation and also its sound effect
-
-        pass
+        # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
+        # Blue Blast button --> E, Purple Blast button --> F
+         
+         pass
 
 
     def update(self):

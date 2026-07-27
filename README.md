@@ -1,5 +1,5 @@
 # A-Fighter-Game
-A 2D Fighting game using Python and Pygame. This project aims to further enhance my skills in Game Development without using guides, solely relying on my own programming skills, except in certain cases where I genuinely cannot find a solution.
+A custom 2D Python/Pygame fighting game built from scratch without tutorials. Focused on core architecture, collision logic, and independent problem-solving.
 
 
 ### Project Checklist ###
