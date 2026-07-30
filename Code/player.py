@@ -31,10 +31,13 @@ class Player(pygame.sprite.Sprite):
         self.player_heal = pygame.mixer.Sound("Sound Effects/player_heal.wav")
 
         self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
-        #self.blue_blast_button_not_selected = pygame.image.load("UI related/BUTTONS/blue_blast_button_not_selected.png").convert_alpha() ---> Needed for later
-        #self.blue_blast_button_selected = pygame.image.load("UI related/BUTTONS/blue_blast_button_selected.png").convert_alpha() ---> Needed for later
+        self.blue_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_not_selected.png").convert_alpha(), (100,100))
+        self.blue_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_selected.png").convert_alpha(), (100,100))
         
         self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
+        self.purple_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_not_selected.png").convert_alpha(), (100,100))
+        self.purple_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_selected.png").convert_alpha(), (100,100))
+
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
@@ -221,6 +224,18 @@ class Player(pygame.sprite.Sprite):
             self.screen.blit(self.when_not_running_image, (900,594))
             pygame.draw.rect(self.screen, "blue", self.rect, 2) 
         
+
+        if self.is_blue_blast_selected == False: # ---> Once a player selects an attack, the button for that attack will darken slightly, and the button for the other attack will remain bright, indicating that it is not selected.
+            self.screen.blit(self.blue_blast_button_not_selected, (1000,594))
+        else:
+            self.screen.blit(self.blue_blast_button_selected, (1000,594))
+
+        if self.is_purple_blast_selected == False:
+            self.screen.blit(self.purple_blast_button_not_selected, (1100,594))
+        else:
+            self.screen.blit(self.purple_blast_button_selected, (1100,594))
+       
+    
         pygame.draw.rect(self.screen, "red", self.hitbox, 2)  # The actual collision area
         
         pygame.draw.rect(self.screen, "black", self.level_box_rect, 2)
@@ -267,9 +282,32 @@ class Player(pygame.sprite.Sprite):
     def attacking_animation_and_sound_effects(self):
         # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
         # Blue Blast button --> E, Purple Blast button --> F
-         
-         pass
+        keys = pygame.key.get_pressed()
 
+        if keys[pygame.K_e]:
+
+            if keys[pygame.K_q]: #---> The player has to first select the attack, and then press the attack button to perform the attack, else the player will not be able to attack
+                self.is_blue_blast_selected = True
+                self.is_purple_blast_selected = False
+                self.is_player_attacking = True 
+                self.blue_blast.play()
+
+            else:
+                self.is_blue_blast_selected = True
+                self.is_player_attacking = False
+
+
+        if keys[pygame.K_f]:  
+
+            if keys[pygame.K_q]:
+                self.is_purple_blast_selected = True
+                self.is_blue_blast_selected = False
+                self.is_player_attacking = True
+                self.purple_blast.play()
+
+            else:
+                self.is_purple_blast_selected = True
+                self.is_player_attacking = False
 
     def update(self):
         self.clock.tick(60)
@@ -279,3 +317,4 @@ class Player(pygame.sprite.Sprite):
         self.staying_in_screen()
         self.animate()
         self.no_collision_with_level_box()        
+        self.attacking_animation_and_sound_effects()

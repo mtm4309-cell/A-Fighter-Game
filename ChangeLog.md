@@ -22,4 +22,9 @@
 
    Date: 27 / 07 / 2026
          1) Finalising the animation for the Purple Blast
-         2) Changing the attack mechanism of the player, where they now must select between the blue blast and the purple blast first and then they can attack. The code initially checks if an attack has been selected, if a selection has not been made, a text will pop up in red asking the player to select an attack.
+         2) Changing the attack mechanism of the player [player.py] ---> The code initially checks if an attack has been selected, if a selection has not been made, a text will pop up in red asking the player to select an attack.
+
+
+    Date: 30 / 07 / 2026
+          1) Adding the buttons for both the blue blast and the purple blast on screen --> Initially, the images were 32x32, which was unfortunately too small, hence I transformed the images and so increased its size by a scale factor to 100x100 (3.125x scale factor)
+          2) Adding the basic logic for the player's attack [player.py] ---> The player has to first select between the blue blast or the purple blast attack by pressing its relevant button, and then press the attack button to actually initiate the attsck. {All that remains is to bring the animation for the attacks and then the collision detection for the player and enemy to complete the attack mechanic}
