@@ -1,5 +1,3 @@
-from ast import If
-
 import pygame , time
 from support import import_folder
 
@@ -14,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         
     # --- END OF STATS --- #
         global health_being_updated
-        self.health_being_updated = self.health
+        self.health_being_updated = 95 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
        
     # --- ASSETS --- # 
         
@@ -216,37 +214,34 @@ class Player(pygame.sprite.Sprite):
 
             #DEBUG: Draw the Hitbox in Red and the Rect in Blue
       
+        ## -- Instead of using fixed coordinates making it hard for the game to player on other laptops, we will be making calculations using the width of the screen -- ##
+        
+        ui_start_x = self.MAX_WIDTH - 300
+
         if self.is_sprinting == True:
             #pygame.draw.rect(self.screen, "green", self.rect, 2)   # The full sprite size
-            self.screen.blit(self.when_running_image, (900,594))
+            self.screen.blit(self.when_running_image, (ui_start_x,594))
 
         else:
-            self.screen.blit(self.when_not_running_image, (900,594))
+            self.screen.blit(self.when_not_running_image, (ui_start_x,594))
             pygame.draw.rect(self.screen, "blue", self.rect, 2) 
         
 
         if self.is_blue_blast_selected == False: # ---> Once a player selects an attack, the button for that attack will darken slightly, and the button for the other attack will remain bright, indicating that it is not selected.
-            self.screen.blit(self.blue_blast_button_not_selected, (1000,594))
+            self.screen.blit(self.blue_blast_button_not_selected, (ui_start_x + 100,594))
         else:
-            self.screen.blit(self.blue_blast_button_selected, (1000,594))
+            self.screen.blit(self.blue_blast_button_selected, (ui_start_x + 100,594))
 
         if self.is_purple_blast_selected == False:
-            self.screen.blit(self.purple_blast_button_not_selected, (1100,594))
+            self.screen.blit(self.purple_blast_button_not_selected, (ui_start_x + 200,594))
         else:
-            self.screen.blit(self.purple_blast_button_selected, (1100,594))
+            self.screen.blit(self.purple_blast_button_selected, (ui_start_x + 200,594))
        
     
         pygame.draw.rect(self.screen, "red", self.hitbox, 2)  # The actual collision area
         
         pygame.draw.rect(self.screen, "black", self.level_box_rect, 2)
-        
-        #DEALING WITH PLAYER HEALTH
-        
-        self.health_bar = (self.health_being_updated / 95) * 100
-        #print(f"Before drawing , the value of player health is {self.health_being_updated}")
-        self.health_bar_empty = pygame.draw.rect(self.screen, "red", (800,600,30,95))
-        self.health_bar_full = pygame.draw.rect(self.screen, "green", (800,600,30,self.health_bar))
-    
+            
     def move(self,speed):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize() #Stops trigonometry from affecting diagonal movement
@@ -260,9 +255,8 @@ class Player(pygame.sprite.Sprite):
         if self.pos.x < 0:
             self.pos.x = 0
         elif self.pos.x > self.MAX_WIDTH - self.rect.width:
-            self.pos.x = self.MAX_WIDTH - self.rect.width
+            self.pos.x = self.MAX_WIDTH - self.rect.width       
 
-       
        # Checking whether if player is crossing the screen vertically #
         
         if self.pos.y < 0:
@@ -273,6 +267,34 @@ class Player(pygame.sprite.Sprite):
         self.rect.topleft = (self.pos.x, self.pos.y) #The picture frame should move to where the player actually is on screen
         self.hitbox.center = self.rect.center # Changing the physics part of player to the middle of the player picture frame
 
+    def player_health(self): # --> Giving a proper health bar to the player, which changes based on how damaged the player gets.
+
+        bar_width = 200 # --> Defining the elements for the health bar
+        bar_height = 20
+        margin = 20
+
+        bar_x = self.MAX_WIDTH - bar_width - margin # --> For the bar to appear on the top right part of the screen
+        bar_y = margin
+      
+
+        health_ratio = self.health_being_updated / self.health # --> The ratio of the health bar to the actual health of the player
+        current_bar_width = bar_width * health_ratio # --> The current width of the health bar will be determined by the ratio of the health bar to the actual health of the player
+
+        # 1) Drawing the red background of the health bar
+
+        red_health_bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        pygame.draw.rect(self.screen, "darkred", red_health_bar_rect)
+
+        #2) Drawing the green foreground of the health bar
+
+        if current_bar_width > 0:
+            green_health_bar_rect = pygame.Rect(bar_x, bar_y, current_bar_width, bar_height)
+            pygame.draw.rect(self.screen, "limegreen", green_health_bar_rect)
+        
+        # 3) Drawing the border of the health bar
+
+        border_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        pygame.draw.rect(self.screen, "white", border_rect, 2)
 
     def no_collision_with_level_box(self):
         
@@ -316,5 +338,6 @@ class Player(pygame.sprite.Sprite):
         self.move(self.speed)        
         self.staying_in_screen()
         self.animate()
+        self.player_health()
         self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()

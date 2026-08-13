@@ -27,4 +27,10 @@
 
     Date: 30 / 07 / 2026
           1) Adding the buttons for both the blue blast and the purple blast on screen --> Initially, the images were 32x32, which was unfortunately too small, hence I transformed the images and so increased its size by a scale factor to 100x100 (3.125x scale factor)
-          2) Adding the basic logic for the player's attack [player.py] ---> The player has to first select between the blue blast or the purple blast attack by pressing its relevant button, and then press the attack button to actually initiate the attsck. {All that remains is to bring the animation for the attacks and then the collision detection for the player and enemy to complete the attack mechanic}
+          2) Adding the basic logic for the player's attack [player.py] ---> The player has to first select between the blue blast or the purple blast attack by pressing its relevant button, and then press the attack button to actually initiate the attack. {All that remains is to bring the animation for the attacks and then the collision detection for the player and enemy to complete the attack mechanic}
+
+
+    Date: 13 / 08 / 2026
+          1) Minimising CPU Utilisation --> Before, there were various places of code where when it is running, it would maximise the Utilisation of the CPU; This would increase the latency of the game, causin more lags and delays, affecting the User Experience. Now, these places have been changed so that the FPS is always at 60, maintaining consistency all across the game.
+          2) Refining the Player Health Bar --> The elements regarding the health bar has changed so that its position is consistent for many diffirent players, it has also been designed to improve its aesthetics, giving it a 'Street-Fighter' style to the game.
+          3) Altering coordinates for various assets --> At first, I had given these assets fixed coordinates that would work on my screen. However, this would obviously not work with other screens for other players. Hence, I changed this coordinates from it being fixed to using calculations based on the widths of the player screen, ensuring consistency and improving User Experience.

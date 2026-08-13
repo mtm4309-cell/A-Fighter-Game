@@ -28,14 +28,10 @@ class Enemy():
         self.attack_radius = 60
         self.notice_radius = 320
 
-        self.is_punch_sound_played = False
+        self.is_kick_sound_played = False
 
     # --- START OF ASSETS --- #
-    
-        self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
-        self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
-
-        self.punch = pygame.mixer.Sound("Sound Effects/punch.mp3")
+        self.kick = pygame.mixer.Sound("Sound Effects/kick.mp3")
 
 
     # --- END OF ASSETS --- #
@@ -82,13 +78,12 @@ class Enemy():
         if distance <= self.notice_radius and distance > self.attack_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
             state = '_walk'
 
-            self.is_punch_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
+            self.is_kick_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
             self.direction = direction 
         
         elif distance <= self.attack_radius and distance < self.notice_radius:  #---> If the player is already within the notice radius and then enters into the attack radius, the enemy will attack the player
             state = '_attack'
             self.direction = direction
-            self.is_punch_sound_played = True
         else:
             state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
@@ -97,6 +92,7 @@ class Enemy():
     
         if new_status != self.status:
             self.frame_index = 0
+            self.is_kick_sound_played = False # ---> This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
 
         self.status = new_status
 
@@ -123,6 +119,13 @@ class Enemy():
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animations):
             self.frame_index = 0
+            self.is_kick_sound_played = False # ---> This ensures that the sound effect will only play once per attack animation, and not multiple times during the same animation cycle
+
+        if 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
+            if int(self.frame_index) == 2 and self.is_kick_sound_played == False:
+                self.is_kick_sound_played = True
+                self.sound_effects()
+
 
         self.image = animations[int(self.frame_index)]
         self.image = pygame.transform.scale(self.image, (200,200))
@@ -130,16 +133,16 @@ class Enemy():
 
 
     def sound_effects(self):
-        if  self.is_punch_sound_played == True and pygame.mixer.get_busy() == False:
+        if  self.is_kick_sound_played == True and pygame.mixer.get_busy() == False:
             self.animation_speed = 0.175 # ----> The increase in the animation speed is to ensure that the sound effects match with the attack animation, ensuring no delay between the two
-            self.punch.play()
-            self.is_punch_sound_played = True
+            self.kick.play()
+            self.is_kick_sound_played = True
 
             if pygame.mixer.get_busy():
-                self.is_punch_sound_played = False
+                self.is_kick_sound_played = False
 
     def update(self):
-        self.screen.blit(self.image, (self.rect.x, 300))
+        self.screen.blit(self.image, (self.rect.x, self.rect.y))
         self.move(self.speed)
         self.animate()
         self.sound_effects()

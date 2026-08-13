@@ -2,8 +2,6 @@ import pygame, random, os, sys #IMPORTING NECESSARY LIBRARIES
 import button #IMPORTING MODULE FOR MAIN MENU AND FOR PAUSE
 from player import Player
 from enemy import Enemy
-from enemy import Enemy
-
 
 pygame.init() # Initialising Pygame
 
@@ -119,7 +117,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
                         playing = False
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(60) #To not fry the CPU when the game is paused
 
 def pause(screen_width,screen_hEIGHT):
     
@@ -168,7 +166,7 @@ def pause(screen_width,screen_hEIGHT):
 
         pygame.display.flip()
 
-    clock.tick(60)
+        clock.tick(60)
 
 while running:
     for event in pygame.event.get():
@@ -195,63 +193,63 @@ while running:
             after_fullscreen_sound = False
             after_fullscreen.fadeout(1000) #No audio is to play
             
-
-        if fullscreen == False: # When the user is not in fullscreen
-            if before_fullscreen_sound == False: #And no audio is being played
+## -- Performance Fix --> Minimising CPU Utilisation by fixing loop indenation and timing -- ##
+    if fullscreen == False: # When the user is not in fullscreen
+        if before_fullscreen_sound == False: #And no audio is being played
                 
-                before_fullscreen_sound = True #The before fullscreen audio shall play
-                no_fullscreen.play(-1,0,500)
+            before_fullscreen_sound = True #The before fullscreen audio shall play
+            no_fullscreen.play(-1,0,500)
 
             # ----- Telling user to go fullscreen ----- #
 
-                pygame.display.set_caption("Fullscreen Needed")
+            pygame.display.set_caption("Fullscreen Needed")
                 
-                WIN.fill("antiquewhite4")
+            WIN.fill("antiquewhite4")
 
-                message = first_font.render("Fullscreen is needed to play this game ", False, "white")
-                WIN.blit(message, (220,330))
+            message = first_font.render("Fullscreen is needed to play this game ", False, "white")
+            WIN.blit(message, (220,330))
 
-        else: #When the user goes into fullscreen
-            if before_fullscreen_sound == True: #Checks if the before_fullscreen audio plays
+    else: #When the user goes into fullscreen
+        if before_fullscreen_sound == True: #Checks if the before_fullscreen audio plays
                 
-                no_fullscreen.fadeout(1000)
-                before_fullscreen_sound = False #The before audio is gone
+            no_fullscreen.fadeout(1000)
+            before_fullscreen_sound = False #The before audio is gone
             
             # ---- The Main Menu ---- #
-            if after_fullscreen_sound == False: # This will aid us in playing this audio once the user returns from the pause menn
-                pygame.mixer.music.set_volume(0.3)
-                after_fullscreen.play(-1,0,500)
-                after_fullscreen_sound = True
+        if after_fullscreen_sound == False: # This will aid us in playing this audio once the user returns from the pause menn
+            pygame.mixer.music.set_volume(0.3)
+            after_fullscreen.play(-1,0,500)
+            after_fullscreen_sound = True
 
-            pygame.display.set_caption("Main Menu")
-            WIN.blit(pygame.transform.scale(background_after_fullscreen,(WIDTH,HEIGHT)), (0, 0))
+        pygame.display.set_caption("Main Menu")
+        WIN.blit(pygame.transform.scale(background_after_fullscreen,(WIDTH,HEIGHT)), (0, 0))
 
-            greetings = second_font.render("A Fighter Game", False, "white")
+        greetings = second_font.render("A Fighter Game", False, "white")
             #pygame.draw.rect(WIN,"gray68", (WIDTH*0.35,HEIGHT*0.075, 445,HEIGHT*0.1))
 
-            WIN.blit(greetings,(WIDTH*0.325,HEIGHT*0.15))
+        WIN.blit(greetings,(WIDTH*0.325,HEIGHT*0.15))
 
-            start_button_actual = button.Button((WIDTH*0.375),(HEIGHT * 0.2), start_button_img,1, 0,-230)
-            exit_button_actual = button.Button((WIDTH*0.375),(HEIGHT*0.5), exit_button_img,1,0,-230)
+        start_button_actual = button.Button((WIDTH*0.375),(HEIGHT * 0.2), start_button_img,1, 0,-230)
+        exit_button_actual = button.Button((WIDTH*0.375),(HEIGHT*0.5), exit_button_img,1,0,-230)
 
-            if start_button_actual.draw(WIN): #When the user clicks on the start button
-                after_fullscreen_sound = False #Stops audio being played
+        if start_button_actual.draw(WIN): #When the user clicks on the start button
+            after_fullscreen_sound = False #Stops audio being played
                 
-                click_button_sound.play() #Shows that button is pressed
+            click_button_sound.play() #Shows that button is pressed
                 
-                while pygame.mouse.get_pressed()[0]:  #Ensures that the button  is only clicked once
-                    pygame.event.pump()
-                pygame.time.delay(25) #Makes things look smoother
+            while pygame.mouse.get_pressed()[0]:  #Ensures that the button  is only clicked once
+                pygame.event.pump()
+            pygame.time.delay(25) #Makes things look smoother
                 
-                loading_screen()
-                play(WIDTH,HEIGHT) # The game starts
+            loading_screen()
+            play(WIDTH,HEIGHT) # The game starts
 
-            if exit_button_actual.draw(WIN): # When exit button is pressed                                
-                click_button_sound.play()
+        if exit_button_actual.draw(WIN): # When exit button is pressed                                
+            click_button_sound.play()
                 
-                while pygame.mouse.get_pressed()[0]:  #Ensures that the button  is only clicked once
-                    after_fullscreen.fadeout(20)
-                    pygame.event.pump()
+            while pygame.mouse.get_pressed()[0]:  #Ensures that the button  is only clicked once
+                after_fullscreen.fadeout(20)
+                pygame.event.pump()
 
                 pygame.time.delay(20) #Makes things look smoother
 

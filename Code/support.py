@@ -1,7 +1,6 @@
 from csv import reader
 from os import walk
 import pygame
-pygame.display.init()
 def import_csv_layout(path):
     terrain_map = [] 
     with open(path) as level_map:
