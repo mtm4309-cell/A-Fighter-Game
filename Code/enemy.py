@@ -16,6 +16,7 @@ class Enemy():
         self.frame_index = 0
         self.animation_speed = 0.15
 
+        self.enemy_health = 50
 
         original_image = pygame.image.load("Sprites/enemy_sprite/east_idle/east.png").convert_alpha()
         
@@ -132,6 +133,29 @@ class Enemy():
         self.rect = self.image.get_rect(center = self.hitbox.center)
 
 
+    def enemy_health_bar(self):
+
+        bar_width = 200 #---> Defining the elements for the health bar
+        bar_height = 20
+
+        bar_x = self.rect.x + (self.rect.width - bar_width) // 2 #--> Centering the health bar above the enemy sprite
+        bar_y = self.rect.y - bar_height - 10 #--> Positioning the health bar above the enemy sprite with a 10-pixel gap
+
+        health_ratio = self.enemy_health / self.health #--> Calculating the ratio of the enemy's current health to its maximum health
+        current_bar_width = bar_width * health_ratio #--> Calculating the current width of the health bar based on the enemy's current health
+
+        #1) Drawing the red background of the health bar
+        back_health_bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        pygame.draw.rect(self.screen, (20, 18, 20), back_health_bar_rect) # ---> Obsidian Charcoal Colour
+
+        #2) Drawing the green foreground of the health bar
+        if current_bar_width > 0:
+            fore_health_bar_rect = pygame.Rect(bar_x, bar_y, current_bar_width, bar_height)
+            pygame.draw.rect(self.screen, (192, 57, 43), fore_health_bar_rect)  # ---> Blood Ember Colour 
+
+        #3) Drawing the border of the health bar 
+        pygame.draw.rect(self.screen, (0, 0, 0), back_health_bar_rect, 2) # ---> Pitch Black Colour
+
     def sound_effects(self):
         if  self.is_kick_sound_played == True and pygame.mixer.get_busy() == False:
             self.animation_speed = 0.175 # ----> The increase in the animation speed is to ensure that the sound effects match with the attack animation, ensuring no delay between the two
@@ -146,6 +170,7 @@ class Enemy():
         self.move(self.speed)
         self.animate()
         self.sound_effects()
+        self.enemy_health_bar()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
     

@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         
     # --- END OF STATS --- #
         global health_being_updated
-        self.health_being_updated = 95 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
+        self.health_being_updated = 50 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
        
     # --- ASSETS --- # 
         
@@ -282,19 +282,19 @@ class Player(pygame.sprite.Sprite):
 
         # 1) Drawing the red background of the health bar
 
-        red_health_bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
-        pygame.draw.rect(self.screen, "darkred", red_health_bar_rect)
+        back_health_bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        pygame.draw.rect(self.screen, (20, 30, 20), back_health_bar_rect) #---> Rotting Earth Colour
 
         #2) Drawing the green foreground of the health bar
 
         if current_bar_width > 0:
-            green_health_bar_rect = pygame.Rect(bar_x, bar_y, current_bar_width, bar_height)
-            pygame.draw.rect(self.screen, "limegreen", green_health_bar_rect)
+            fore_health_bar_rect = pygame.Rect(bar_x, bar_y, current_bar_width, bar_height)
+            pygame.draw.rect(self.screen, (39, 174, 96), fore_health_bar_rect) #---> Flask Vitality Green Colour
         
         # 3) Drawing the border of the health bar
 
         border_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
-        pygame.draw.rect(self.screen, "white", border_rect, 2)
+        pygame.draw.rect(self.screen, (120, 120, 125), border_rect, 2) # ---> Tarnished Steel Grey Color
 
     def no_collision_with_level_box(self):
         
