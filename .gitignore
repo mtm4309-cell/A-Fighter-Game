@@ -1,0 +1,20 @@
+# Python compiled bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Editor & OS settings
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build & distribution logs
+*.log
+dist/
+build/
