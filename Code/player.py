@@ -76,7 +76,7 @@ class Player(pygame.sprite.Sprite):
         self.is_player_attacking = False
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
         self.is_purple_blast_selected = False 
-
+        self.is_blast_released = False
 
     # --- END OF PLAYER MOVEMENT --- #
 
@@ -84,7 +84,18 @@ class Player(pygame.sprite.Sprite):
         self.status = 'east'
         self.frame_index = 0
         self.animation_speed = 0.15
+
     # --- END OF PLAYER ANIMATION --- #
+
+       
+    # -- Attack Animation -- #
+        self.attack_frame_index = 0
+        self.attack_animation_speed = 0.10
+        self.blast_velocity = 10 # --> The speed at which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
+        self.blast_x = self.player_x
+        self.blast_y = self.player_y
+        self.blast_facing_right = True
+        self.blast_direction = None # --> The direction in which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
 
         self.clock = pygame.time.Clock()
 
@@ -104,15 +115,21 @@ class Player(pygame.sprite.Sprite):
             full_path_1 = character_path + animation
             self.animations[animation] = import_folder(full_path_1)
 
+        for attack_animation in self.attack_animations.keys():
+            full_path_2 = character_path + attack_animation
+            self.attack_animations[attack_animation] = import_folder(full_path_2)
+
     def input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
             self.status = 'east'
+            self.blast_facing_right = True
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.direction.x = -1
             self.status = 'west'
+            self.blast_facing_right = False
         else:
             self.direction.x = 0
 
@@ -132,22 +149,6 @@ class Player(pygame.sprite.Sprite):
                 self.animation_speed = 0.15
                 self.is_sprinting = False
             
-            if keys[pygame.K_q]: # When the Q button is pressed, the player will attack,
-                                # as for the change in self.status, that is to be seen in get_status() function
-                if not self.is_player_attacking:
-                    if self.is_blue_blast_selected == False and self.is_purple_blast_selected == False:
-                        self.is_player_attacking = False
-
-                        self.select_attack_test = self.level_font.render(f"Select an attack first!", False, "red")
-                        self.screen.blit(self.select_attack_test, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
-
-                ## -- In the code above, the player must choose between the two attacks available; 
-                ## -- If the player does not select an attack, 
-                # then a message will be displayed on the screen telling the player to select an attack first. -- ##
-
-                else:
-                    self.attacking_animation_and_sound_effects() #---> If in the case that any of the attacks are selected, that is all handled in the subroutine referenced in the code
-    
         if self.is_jumping == True:
             self.pos.y -= self.jump_speed
             self.jump_speed -= self.gravity
@@ -306,30 +307,70 @@ class Player(pygame.sprite.Sprite):
         # Blue Blast button --> E, Purple Blast button --> F
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_e]:
+        if keys[pygame.K_e]: # To select Blue Blast
+            self.is_blue_blast_selected = True
+            self.is_purple_blast_selected = False
+        if keys[pygame.K_f]: # To select Purple Blast
+            self.is_purple_blast_selected = True
+            self.is_blue_blast_selected = False
 
-            if keys[pygame.K_q]: #---> The player has to first select the attack, and then press the attack button to perform the attack, else the player will not be able to attack
-                self.is_blue_blast_selected = True
-                self.is_purple_blast_selected = False
-                self.is_player_attacking = True 
-                self.blue_blast.play()
+
+        if keys[pygame.K_q]: # 
+
+            if self.is_blue_blast_selected == False and self.is_purple_blast_selected == False: # --> Player pressing attack button without selecting any attack, will be prompted to select an attack first.
+                self.is_player_attacking = False
+                self.is_blast_released = False
+                
+                self.select_attack_text = self.level_font.render(f"Select an attack first!", False, "red")
+                self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
             else:
-                self.is_blue_blast_selected = True
-                self.is_player_attacking = False
+                if not self.is_player_attacking:
+                    self.is_player_attacking = True
+                    self.is_blast_released = True # --> This variable is needed so that the blast can continue to go, whilst not being dependent on the player pressing the attack button.
+                    self.attack_frame_index = 0
+
+                    self.blast_x = self.player_x # --> Starting coordinates by which the blast emerges from [Requires more work]
+                    self.blast_y = self.player_y
+
+                    if self.blast_facing_right: # --> Helps us determine as to which direction the blast should go, based on the direction the player is facing.
+                        self.blast_direction = 1
+                    else:
+                        self.blast_direction = -1
+
+                    if self.is_blue_blast_selected:
+                        self.blue_blast.play()
+                    if self.is_purple_blast_selected:
+                        self.purple_blast.play()
+
+        if self.is_blue_blast_selected == True and self.is_purple_blast_selected == False:
+            attack_animation = self.attack_animations['blue_blast'] # --> To load the relevant animation for the respective attack
+        elif self.is_purple_blast_selected == True and self.is_blue_blast_selected == False:
+            attack_animation = self.attack_animations['purple_blast']
+        else:
+            attack_animation = None # --> If the player has not selected any attack, the default animation will be blue blast animation
+
+        if self.is_blast_released == True and attack_animation is not None:
+            self.attack_frame_index =  (self.attack_frame_index + self.attack_animation_speed) % len(attack_animation) # --> So that the animation repeats itself rather than stopping at the last frame of the animation.
 
 
-        if keys[pygame.K_f]:  
+            self.blast_x += self.blast_velocity * self.blast_direction # --> What causes the blast to move
+            
+# Boundary checks: Stop attacking only when the blast goes completely off-screen
+            if self.blast_direction == 1:  # Moving right
+                if self.blast_x > self.MAX_WIDTH:
+                    self.is_blast_released = False
+            else:  # Moving left
+                if self.blast_x < -self.MAX_WIDTH:
+                    self.is_blast_released = False
 
-            if keys[pygame.K_q]:
-                self.is_purple_blast_selected = True
-                self.is_blue_blast_selected = False
-                self.is_player_attacking = True
-                self.purple_blast.play()
+            if self.is_blast_released == True and attack_animation is not None:
+                if self.blast_direction == 1: # --> The animations were drawn assuming that it would go to the left, hence the image is inverted to make the blast look like it travels to the right --> CONSISTENCY IN ANIMATION
+                    self.attack_image = pygame.transform.flip(pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150)), True, False)
+                else:
+                    self.attack_image = pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150))
 
-            else:
-                self.is_purple_blast_selected = True
-                self.is_player_attacking = False
+                self.screen.blit(self.attack_image,(self.blast_x, self.blast_y))
 
     def update(self):
         self.clock.tick(60)

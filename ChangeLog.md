@@ -35,3 +35,9 @@
           2) Refining the Player Health Bar --> The elements regarding the health bar has changed so that its position is consistent for many diffirent players, it has also been designed to improve its aesthetics, trying to give a 'fantasy-like'vibe
           3) Altering coordinates for various assets --> At first, I had given these assets fixed coordinates that would work on my screen. However, this would obviously not work with other screens for other players. Hence, I changed this coordinates from it being fixed to using calculations based on the widths of the player screen, ensuring consistency and improving User Experience.
           4) Refining the Enemy Health Bar --> The Health Bar has been position using the Rect Values of the Enemy sprite so that it is placed 10 pixels above the enemy, and travels with the enemy wherever it goes; Just like the Player Health Bar, the colours that were chosen aee meant to give a 'fantasy-like' vibe 
+
+
+     Date: 14 / 08 / 2026
+           1) Restructing the Player Attack Code --> Gathered scattered attack code and placed it into the attacking_animation_and_sound_effects() subroutine to streamline debugging and maintenance.
+           2) Animation of the Blast Attacks --> Added frame-indexed asset loading and rendering for blue and purple blast attacks.
+           3) The Movement of Blast Attacks --> Set up dynamic spawn coordinates based on the player's position, with horizontal movement driven by the player's coordinates and the blast velocity.
