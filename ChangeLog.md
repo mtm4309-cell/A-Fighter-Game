@@ -41,3 +41,7 @@
            1) Restructing the Player Attack Code --> Gathered scattered attack code and placed it into the attacking_animation_and_sound_effects() subroutine to streamline debugging and maintenance.
            2) Animation of the Blast Attacks --> Added frame-indexed asset loading and rendering for blue and purple blast attacks.
            3) The Movement of Blast Attacks --> Set up dynamic spawn coordinates based on the player's position, with horizontal movement driven by the player's coordinates and the blast velocity.
+
+    Date: 19 / 08 / 2026
+          1) Adding a cool down for the blasts --> The Problem was that the blast would constantly reset back to the player depending on whether the 'Q' button was pressed; This would increase CPU Utilisation causing more latency. Hence; a cooldown system has been implemented using Pygame clock ticks using nested if statements. [I could restructure the code to using FSM's instead...]
+          

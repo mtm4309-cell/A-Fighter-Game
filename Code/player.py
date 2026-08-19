@@ -77,6 +77,18 @@ class Player(pygame.sprite.Sprite):
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
         self.is_purple_blast_selected = False 
         self.is_blast_released = False
+        self.blast_cooldown = 1500 # (1.5 seconds)
+        self.last_blast_time = 0
+
+        self.attack_frame_index = 0
+        self.attack_animation_speed = 0.10
+        self.blast_velocity = 10 # --> The speed at which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
+        self.blast_x = self.player_x
+        self.blast_y = self.player_y
+        self.blast_facing_right = True
+        self.blast_direction = None # --> The direction in which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
+
+
 
     # --- END OF PLAYER MOVEMENT --- #
 
@@ -86,16 +98,6 @@ class Player(pygame.sprite.Sprite):
         self.animation_speed = 0.15
 
     # --- END OF PLAYER ANIMATION --- #
-
-       
-    # -- Attack Animation -- #
-        self.attack_frame_index = 0
-        self.attack_animation_speed = 0.10
-        self.blast_velocity = 10 # --> The speed at which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
-        self.blast_x = self.player_x
-        self.blast_y = self.player_y
-        self.blast_facing_right = True
-        self.blast_direction = None # --> The direction in which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
 
         self.clock = pygame.time.Clock()
 
@@ -305,7 +307,13 @@ class Player(pygame.sprite.Sprite):
     def attacking_animation_and_sound_effects(self):
         # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
         # Blue Blast button --> E, Purple Blast button --> F
+        current_time = pygame.time.get_ticks()
+        if (self.is_blast_released == True) and (current_time - self.last_blast_time >= self.blast_cooldown):
+            self.blast_state = False
+
+
         keys = pygame.key.get_pressed()
+
 
         if keys[pygame.K_e]: # To select Blue Blast
             self.is_blue_blast_selected = True
@@ -325,13 +333,14 @@ class Player(pygame.sprite.Sprite):
                 self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
             else:
-                if not self.is_player_attacking:
+                if not self.is_player_attacking and self.is_blast_released == False: # --> This condition ensures that the player cannot spam the attack button, and that the blast is released only once per attack button press.
                     self.is_player_attacking = True
                     self.is_blast_released = True # --> This variable is needed so that the blast can continue to go, whilst not being dependent on the player pressing the attack button.
+
                     self.attack_frame_index = 0
 
-                    self.blast_x = self.player_x # --> Starting coordinates by which the blast emerges from [Requires more work]
-                    self.blast_y = self.player_y
+                    self.blast_x = self.pos.x # --> Starting coordinates by which the blast emerges from 
+                    self.blast_y = self.pos.y # --> [Fix --> Taking the Player's current position instead of the starting position of the player, so that the blast can be released from wherever the player is on the screen]
 
                     if self.blast_facing_right: # --> Helps us determine as to which direction the blast should go, based on the direction the player is facing.
                         self.blast_direction = 1
@@ -342,6 +351,10 @@ class Player(pygame.sprite.Sprite):
                         self.blue_blast.play()
                     if self.is_purple_blast_selected:
                         self.purple_blast.play()
+
+                elif self.is_blast_released == True:
+                    self.select_attack_text = self.level_font.render(f"Blast is on cooldown!", False, "red")
+                    self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
         if self.is_blue_blast_selected == True and self.is_purple_blast_selected == False:
             attack_animation = self.attack_animations['blue_blast'] # --> To load the relevant animation for the respective attack
@@ -356,7 +369,7 @@ class Player(pygame.sprite.Sprite):
 
             self.blast_x += self.blast_velocity * self.blast_direction # --> What causes the blast to move
             
-# Boundary checks: Stop attacking only when the blast goes completely off-screen
+            # Boundary checks: Stop attacking only when the blast goes completely off-screen
             if self.blast_direction == 1:  # Moving right
                 if self.blast_x > self.MAX_WIDTH:
                     self.is_blast_released = False
@@ -382,3 +395,4 @@ class Player(pygame.sprite.Sprite):
         self.player_health()
         self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()
+
