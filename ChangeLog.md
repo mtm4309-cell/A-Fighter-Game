@@ -16,11 +16,11 @@
 
           2) One of the attacks the player can choose is the blue blast; today I drew its animation and the button for which the player must press for the attack to occur, using aseprite. 
 
-   Date: 15 / 07 / 2026
+    Date: 15 / 07 / 2026
          1) Refining the buttons for the Blue Blast and the Purple Blast --> For the Blue Blast, a design for when the player presses that button and when it is not selected was drawn, and likewise for the Purple Blast
          2) Changing the Jump Height --> Initially, if the player were to jump, it would still be in the proximity of the enemy, but by increasing it, no unnecessary damage will be afflicted onto the player.
 
-   Date: 27 / 07 / 2026
+     Date: 27 / 07 / 2026
          1) Finalising the animation for the Purple Blast
          2) Changing the attack mechanism of the player [player.py] ---> The code initially checks if an attack has been selected, if a selection has not been made, a text will pop up in red asking the player to select an attack.
 
