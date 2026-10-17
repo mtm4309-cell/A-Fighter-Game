@@ -101,10 +101,13 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
 
     while playing:
         WIN.blit(arena_bigger, (0,0)) #Remove everything from main menu
+        me.player_update(enemy_1)
         me.update()
+
         enemy_1.enemy_update(me)
         enemy_1.update()
-        
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()

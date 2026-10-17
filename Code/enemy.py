@@ -165,6 +165,12 @@ class Enemy():
             if pygame.mixer.get_busy():
                 self.is_kick_sound_played = False
 
+    
+    def enemy_get_hurt(self,player):
+        if self.rect.colliderect(player.rect):
+            self.enemy_health -= 10
+    
+
     def update(self):
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
         self.move(self.speed)
@@ -177,3 +183,4 @@ class Enemy():
     def enemy_update(self,player):
         self.get_status(player)
         self.get_actions(player)
+        self.enemy_get_hurt(player)

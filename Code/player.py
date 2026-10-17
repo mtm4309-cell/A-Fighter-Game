@@ -87,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         self.blast_y = self.player_y
         self.blast_facing_right = True
         self.blast_direction = None # --> The direction in which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
-
+        self.blast_blasted = [] 
 
 
     # --- END OF PLAYER MOVEMENT --- #
@@ -172,7 +172,7 @@ class Player(pygame.sprite.Sprite):
         action = ''
 
         if self.health_being_updated <= 0:
-            action = 'death'
+            action = '_death'
         else:
 
             if self.direction.x == 0 and self.direction.y == 0:
@@ -299,6 +299,21 @@ class Player(pygame.sprite.Sprite):
         border_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
         pygame.draw.rect(self.screen, (120, 120, 125), border_rect, 2) # ---> Tarnished Steel Grey Color
 
+    def player_damage_health(self, enemy):
+        # Enemy status must be in attack
+        
+        if hasattr(enemy, 'status'): # --> Necessary for debugging
+            print(enemy.status)
+        else:
+            print("Error: status is still not defined on this object!")
+
+
+        if self.health_being_updated > 0: # --> In the case that the player is not dead
+            if 'attack' in enemy.status:
+                if self.rect.colliderect(enemy.rect):
+                    self.health_being_updated = self.health_being_updated - 5 
+
+
     def no_collision_with_level_box(self):
         
         if self.hitbox.colliderect(self.level_box_rect):
@@ -356,34 +371,43 @@ class Player(pygame.sprite.Sprite):
                     self.select_attack_text = self.level_font.render(f"Blast is on cooldown!", False, "red")
                     self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
-        if self.is_blue_blast_selected == True and self.is_purple_blast_selected == False:
-            attack_animation = self.attack_animations['blue_blast'] # --> To load the relevant animation for the respective attack
-        elif self.is_purple_blast_selected == True and self.is_blue_blast_selected == False:
-            attack_animation = self.attack_animations['purple_blast']
-        else:
-            attack_animation = None # --> If the player has not selected any attack, the default animation will be blue blast animation
+        for blast in self.blast_blasted:
 
-        if self.is_blast_released == True and attack_animation is not None:
-            self.attack_frame_index =  (self.attack_frame_index + self.attack_animation_speed) % len(attack_animation) # --> So that the animation repeats itself rather than stopping at the last frame of the animation.
-
-
-            self.blast_x += self.blast_velocity * self.blast_direction # --> What causes the blast to move
-            
-            # Boundary checks: Stop attacking only when the blast goes completely off-screen
-            if self.blast_direction == 1:  # Moving right
-                if self.blast_x > self.MAX_WIDTH:
-                    self.is_blast_released = False
-            else:  # Moving left
-                if self.blast_x < -self.MAX_WIDTH:
-                    self.is_blast_released = False
+            if self.is_blue_blast_selected == True and self.is_purple_blast_selected == False:
+                attack_animation = self.attack_animations['blue_blast'] # --> To load the relevant animation for the respective attack
+            elif self.is_purple_blast_selected == True and self.is_blue_blast_selected == False:
+                attack_animation = self.attack_animations['purple_blast']
+            else:
+                attack_animation = None # --> If the player has not selected any attack, the default animation will be blue blast animation
 
             if self.is_blast_released == True and attack_animation is not None:
-                if self.blast_direction == 1: # --> The animations were drawn assuming that it would go to the left, hence the image is inverted to make the blast look like it travels to the right --> CONSISTENCY IN ANIMATION
-                    self.attack_image = pygame.transform.flip(pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150)), True, False)
-                else:
-                    self.attack_image = pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150))
+                self.attack_frame_index =  (self.attack_frame_index + self.attack_animation_speed) % len(attack_animation) # --> So that the animation repeats itself rather than stopping at the last frame of the animation.
 
-                self.screen.blit(self.attack_image,(self.blast_x, self.blast_y))
+
+                self.blast_x += self.blast_velocity * self.blast_direction # --> What causes the blast to move
+                
+                # Boundary checks: Stop attacking only when the blast goes completely off-screen
+                if self.blast_direction == 1:  # Moving right
+                    if self.blast_x > self.MAX_WIDTH:
+                        self.is_blast_released = False
+                        self.blast_blasted.remove(blast)
+                else:  # Moving left
+                    if self.blast_x < -self.MAX_WIDTH:
+                        self.is_blast_released = False
+                        self.blast_blasted.remove(blast)
+
+                if self.is_blast_released == True and attack_animation is not None:
+                    if self.blast_direction == 1: # --> The animations were drawn assuming that it would go to the left, hence the image is inverted to make the blast look like it travels to the right --> CONSISTENCY IN ANIMATION
+                        self.attack_image = pygame.transform.flip(pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150)), True, False)
+                    else:
+                        self.attack_image = pygame.transform.scale((attack_animation[int(self.attack_frame_index)]),(150,150))
+
+                    self.blast_blasted.append(self.attack_image)
+
+                    self.screen.blit(self.attack_image,(self.blast_x, self.blast_y))
+
+
+
 
     def update(self):
         self.clock.tick(60)
@@ -396,3 +420,5 @@ class Player(pygame.sprite.Sprite):
         self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()
 
+    def player_update(self,enemy):
+        self.player_damage_health(enemy)     
