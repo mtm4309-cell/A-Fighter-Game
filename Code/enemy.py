@@ -16,7 +16,7 @@ class Enemy():
         self.frame_index = 0
         self.animation_speed = 0.15
 
-        self.enemy_health = 50
+        self.enemy_health = 100
 
         original_image = pygame.image.load("Sprites/enemy_sprite/east_idle/east.png").convert_alpha()
         
@@ -167,8 +167,8 @@ class Enemy():
 
     
     def enemy_get_hurt(self,player):
-        if self.rect.colliderect(player.rect):
-            self.enemy_health -= 10
+        if self.hitbox.colliderect(player.hitbox):
+            self.enemy_health -= 1  # --> Using self.rect causes the related entities to lose damage when there isno collision between them.
     
 
     def update(self):
