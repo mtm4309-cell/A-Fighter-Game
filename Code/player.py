@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
     # --- END OF STATS --- #
         global health_being_updated
         self.health_being_updated = 100 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
-       
+
     # --- ASSETS --- # 
         
         original_image = pygame.image.load("Sprites/player_sprite/east_idle/east.png").convert_alpha()
@@ -92,6 +92,12 @@ class Player(pygame.sprite.Sprite):
         self.blast_blasted = [] 
 
 
+        self.blue_blast_attributes = {"Damage": 10, "Speed": 10, "Cooldown": 1.5}
+        self.purple_blast_attributes = {"Damage": 15, "Speed": 15, "Cooldown": 2.0}
+
+        self.blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
+
+
     # --- END OF PLAYER MOVEMENT --- #
 
     # --- PLAYER ANIMATION --- #
@@ -162,7 +168,7 @@ class Player(pygame.sprite.Sprite):
                 self.jump_speed = self.jump_height
                 self.pos.y = self.player_y      
 
-       
+
     def get_status(self):
     
         if '_' in self.status:
@@ -191,7 +197,6 @@ class Player(pygame.sprite.Sprite):
         
         self.status = self.status + action
 
-        #print(self.status)
 
     def animate(self):
         animation = self.animations[self.status]
@@ -388,8 +393,21 @@ class Player(pygame.sprite.Sprite):
                 self.attack_image = pygame.transform.flip(self.attack_image, True, False)
             self.screen.blit(self.attack_image, (self.blast_x, self.blast_y))
 
-
-
+        
+    def collision_of_blast_with_enemy(self, enemy):
+        
+        if not self.is_blast_released:
+            return False
+        
+        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
+        
+        if blast_rect.colliderect(enemy.hitbox):
+        
+                self.is_blast_released = False
+        
+                return True  # Collision detected
+        
+        return False  # No collision detected
 
     def update(self):
         self.clock.tick(60)
@@ -403,4 +421,4 @@ class Player(pygame.sprite.Sprite):
         self.attacking_animation_and_sound_effects()
 
     def player_update(self,enemy):
-        self.player_damage_health(enemy)     
+        self.player_damage_health(enemy)

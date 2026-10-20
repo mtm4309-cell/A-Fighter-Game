@@ -1,6 +1,6 @@
 import pygame
 from support import import_folder
-
+from player import Player
 class Enemy():
     def __init__(self, health, damage,speed, level,screen):
         self.health = health
@@ -17,6 +17,7 @@ class Enemy():
         self.animation_speed = 0.15
 
         self.enemy_health = 100
+        self.has_been_hit_by_blast = False
 
         original_image = pygame.image.load("Sprites/enemy_sprite/east_idle/east.png").convert_alpha()
         
@@ -166,9 +167,25 @@ class Enemy():
                 self.is_kick_sound_played = False
 
     
-    def enemy_get_hurt(self,player):
-        if self.hitbox.colliderect(player.hitbox):
-            self.enemy_health -= 1  # --> Using self.rect causes the related entities to lose damage when there isno collision between them.
+    def enemy_get_hurt_by_blast(self,player):
+
+        # Detect the collision as soon as the blast overlaps the enemy.
+        if player.collision_of_blast_with_enemy(self):
+                   
+            if player.blast_type == "blue_blast":
+                damage = player.blue_blast_attributes["Damage"]
+            elif player.blast_type == "purple_blast":
+                damage = player.purple_blast_attributes["Damage"]
+            else:
+                damage = 0
+
+
+            self.enemy_health = self.enemy_health - damage
+                
+            print(f"Enemy health after blast: {self.enemy_health}")
+
+            
+          
     
 
     def update(self):
@@ -183,4 +200,4 @@ class Enemy():
     def enemy_update(self,player):
         self.get_status(player)
         self.get_actions(player)
-        self.enemy_get_hurt(player)
+        self.enemy_get_hurt_by_blast(player) 

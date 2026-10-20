@@ -58,3 +58,22 @@
 
             2) Changing the point at which both the player and the enemy takes damage from self.rect to 
             self.hitbox in the case of direct contact between the player and the enemy.
+
+
+      Date : 20 / 10 / 2026
+
+            1) Fixing the code relating to damage of the enemy by the blast:
+
+                  Initial Issues:
+                        i) When the blast would collide with the enemy, the enemy would completely lose its health, though the blast should only causes not that much damage. This was due to the code causing the blast to be in constant collision even if it is not visible on the screen.
+                        ii) Two functions were made, one in the player class and the other in the enemy class, though they were not coordinated and rather executed in their own ways, this would cause unnecessary optimisation of the CPU. 
+                        iii) Despite the prescence of two diffirent blasts, the damage that would be incurred onto the enemy would still remain the same.
+                        iv)  
+
+                  Fixes:
+                        i) The coordination of both functions such that the function in the player class detects if there is a collision in the first place. The enemy class detects the type of blast from the player class, and then deals the respective damage onto the enemy.
+                        ii) Attributes for the blue and purple blasts have been made respectively (though not applied fully for all characteristics) for the damage to be dealt onto the enemy.
+                        iii) The stopping of the extra damage being dealt to the enemy the moment at which the collision occurs, via the coordination of the respective functions in the player and enemy class.
+            
+
+      
