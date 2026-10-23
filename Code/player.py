@@ -365,9 +365,10 @@ class Player(pygame.sprite.Sprite):
                 self.blast_type = 'blue_blast' if self.is_blue_blast_selected else 'purple_blast'
 
                 if self.blast_type == 'blue_blast':
-                    self.blue_blast.play()
+                    pygame.mixer.Channel(1).play(self.blue_blast)
+
                 else:
-                    self.purple_blast.play()
+                    pygame.mixer.Channel(2).play(self.purple_blast)
             else:
                 self.select_attack_text = self.level_font.render("Blast is on cooldown!", False, "red")
                 self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))

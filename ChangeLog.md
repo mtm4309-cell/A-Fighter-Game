@@ -85,4 +85,13 @@
                   Fixes:
                         i) For both the instance at which the sound effect is being played and when the player's health goes down, a condition has been placed based upon the frame index of the animation of the enemy attack, which is the 5th-6th frame where there is contact between the enemy and the player. 
 
-      
+            2) Discrepancies between the attack sound effect of both player and enemy
+
+                  Initial Issues:
+  
+                        i) Whenever the enemy is in attack mode whilst the player is attacking at the same time, the blast sound effects were given a priority over the enemy sound effect, and so the enemy sound effect is not being played yet the animation of the enemy attack is being played
+                        ii) The removal of  the pygame.mixer.getbusy() condition allows the enemy's sound to play, but causes repeated playback triggers and overlapping audio, resulting in an unpleasant listening experience.
+
+                  Fixes:
+                        i) Dedicating a mixer channel for the enemy attack sound effect and likewise for the player attack sound effects --> The blue blast is assigned to channel 1. The purple blast is assigned to channel 2. The enemy attack sound effect is assigned to channel 3. This ensures that there are no interference between the sound effects if they were to both occur on one instance.
+                        ii) Improving the sound channel management by using the condition {"pygame.mixer.Channel(3).gotbusy"} to check whether if the enemy's dedicated sound effect is being played before triggering another playback, removing the unpleasant overlapping of audio, whilst being independent from other sound effects.

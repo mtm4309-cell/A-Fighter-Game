@@ -158,14 +158,10 @@ class Enemy():
         pygame.draw.rect(self.screen, (0, 0, 0), back_health_bar_rect, 2) # ---> Pitch Black Colour
 
     def sound_effects(self):
-        if  self.is_kick_sound_played == True and pygame.mixer.get_busy() == False:
-            self.animation_speed = 0.175 # ----> The increase in the animation speed is to ensure that the sound effects match with the attack animation, ensuring no delay between the two
-            self.kick.play()
-            self.is_kick_sound_played = True
-
-            if pygame.mixer.get_busy():
-                self.is_kick_sound_played = False
-
+        if self.is_kick_sound_played and not pygame.mixer.Channel(3).get_busy():
+            self.animation_speed = 0.175
+            pygame.mixer.Channel(3).play(self.kick)
+            self.is_kick_sound_played = False
     
     def enemy_get_hurt_by_blast(self,player):
 
