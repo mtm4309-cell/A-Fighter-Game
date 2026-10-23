@@ -95,3 +95,5 @@
                   Fixes:
                         i) Dedicating a mixer channel for the enemy attack sound effect and likewise for the player attack sound effects --> The blue blast is assigned to channel 1. The purple blast is assigned to channel 2. The enemy attack sound effect is assigned to channel 3. This ensures that there are no interference between the sound effects if they were to both occur on one instance.
                         ii) Improving the sound channel management by using the condition {"pygame.mixer.Channel(3).gotbusy"} to check whether if the enemy's dedicated sound effect is being played before triggering another playback, removing the unpleasant overlapping of audio, whilst being independent from other sound effects.
+
+            3) Finished the animation for the explosion of the blue blast --> This will happen whenever the blue blast collides with the enemy, the animation for the purple blast is yet to be done and the code to implement the animation is yet to be done.
