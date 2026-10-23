@@ -64,7 +64,7 @@ def loading_screen():
     
     after_fullscreen.fadeout(1000) #Stops all audio played previously
     
-    loading_message = ["Zain is a beautiful kid" , "Give Zain a big kiss", "Talha is the best Big bro"] 
+    loading_message = ["..." , "...", "..."] 
     random_message = random.choice(loading_message) #Gives user a message to read as they wait for the game to load
     
     while progress_bar_value < 400: #When the loading bar isn't filled
@@ -75,7 +75,7 @@ def loading_screen():
 
         loading_message_display = first_font.render(f"Tip : {random_message}", True, "white") #Outputs a tip for the player (how generous)
         WIN.blit(loading_message_display, ((WIDTH*0.42),(HEIGHT * 0.45))) #Actual display of the message
-        progress_bar_value += 100 #random.uniform(0.3,0.8) #How much does the bar get filled up by
+        progress_bar_value += 5 #random.uniform(0.3,0.8) #How much does the bar get filled up by
         
         loading_percentage = round(((progress_bar_value / 400) * 100),1)
         loading_percentage_message = first_font.render(F"Loading : {loading_percentage}%", True, "white")

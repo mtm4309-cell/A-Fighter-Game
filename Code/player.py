@@ -316,9 +316,10 @@ class Player(pygame.sprite.Sprite):
 
 
         if self.health_being_updated > 0: # --> In the case that the player is not dead
-            if 'attack' in enemy.status:
-                if self.hitbox.colliderect(enemy.hitbox): # --> Using self.rect causes the related entities to lose damage when there isno collision between them.
-                    self.health_being_updated = self.health_being_updated - 1
+            if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
+                if 'attack' in enemy.status:
+                    if self.hitbox.colliderect(enemy.hitbox): # --> Using self.hitbox causes the related entities to lose damage when there isno collision between them.
+                        self.health_being_updated = self.health_being_updated - 1
 
 
     def no_collision_with_level_box(self):

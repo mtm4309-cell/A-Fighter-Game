@@ -124,7 +124,7 @@ class Enemy():
             self.is_kick_sound_played = False # ---> This ensures that the sound effect will only play once per attack animation, and not multiple times during the same animation cycle
 
         if 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
-            if int(self.frame_index) == 2 and self.is_kick_sound_played == False:
+            if int(self.frame_index) == 5 and self.is_kick_sound_played == False: # ---> The self frame index at which the sound is playeed has changed from '2' to '5' so that the sound effect is played at the point of contact between the kick and the player.
                 self.is_kick_sound_played = True
                 self.sound_effects()
 
