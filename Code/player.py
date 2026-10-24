@@ -19,8 +19,8 @@ class Player(pygame.sprite.Sprite):
         original_image = pygame.image.load("Sprites/player_sprite/east_idle/east.png").convert_alpha()
         self.image = pygame.transform.scale(original_image, (150,150))
 
-        self.when_not_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_not_running.png").convert_alpha(), (100,100))
-        self.when_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_running.png").convert_alpha(), (100,100))
+        self.when_not_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_not_running.png").convert_alpha(), (85,85))
+        self.when_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_running.png").convert_alpha(), (85,85))
 
         level_image = pygame.image.load("UI related/BACKGROUNDS/level_template.png")
         self.level_image = pygame.transform.scale(level_image, (385,75))
@@ -230,22 +230,22 @@ class Player(pygame.sprite.Sprite):
 
         if self.is_sprinting == True:
             #pygame.draw.rect(self.screen, "green", self.rect, 2)   # The full sprite size
-            self.screen.blit(self.when_running_image, (ui_start_x,594))
+            self.screen.blit(self.when_running_image, (ui_start_x + 15,60))
 
         else:
-            self.screen.blit(self.when_not_running_image, (ui_start_x,594))
+            self.screen.blit(self.when_not_running_image, (ui_start_x + 15,60))
             pygame.draw.rect(self.screen, "blue", self.rect, 2) 
         
 
         if self.is_blue_blast_selected == False: # ---> Once a player selects an attack, the button for that attack will darken slightly, and the button for the other attack will remain bright, indicating that it is not selected.
-            self.screen.blit(self.blue_blast_button_not_selected, (ui_start_x + 100,594))
+            self.screen.blit(self.blue_blast_button_not_selected, (ui_start_x + 100,50))
         else:
-            self.screen.blit(self.blue_blast_button_selected, (ui_start_x + 100,594))
+            self.screen.blit(self.blue_blast_button_selected, (ui_start_x + 100,50))
 
         if self.is_purple_blast_selected == False:
-            self.screen.blit(self.purple_blast_button_not_selected, (ui_start_x + 200,594))
+            self.screen.blit(self.purple_blast_button_not_selected, (ui_start_x + 200,50))
         else:
-            self.screen.blit(self.purple_blast_button_selected, (ui_start_x + 200,594))
+            self.screen.blit(self.purple_blast_button_selected, (ui_start_x + 200,50))
        
     
         pygame.draw.rect(self.screen, "red", self.hitbox, 2)  # The actual collision area

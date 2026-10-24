@@ -97,3 +97,7 @@
                         ii) Improving the sound channel management by using the condition {"pygame.mixer.Channel(3).gotbusy"} to check whether if the enemy's dedicated sound effect is being played before triggering another playback, removing the unpleasant overlapping of audio, whilst being independent from other sound effects.
 
             3) Finished the animation for the explosion of the blue blast and the purple blast --> This will happen whenever the blue / purple blast collides with the enemy, the code to implement the animation is yet to be done and the animation will be updated, this is currently a first draft.
+      
+      Date: 24 / 10 / 2026
+
+            1) Changing the position of the run and the blasts button vertically and their respective dimenstions --> They are now placed next below the health bar, and have been resized so as to not overpower the health bar.  
