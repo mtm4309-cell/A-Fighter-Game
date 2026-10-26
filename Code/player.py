@@ -402,20 +402,20 @@ class Player(pygame.sprite.Sprite):
 
         
     def collision_of_blast_with_enemy(self, enemy):
-        if not self.is_blast_released:
+        if not self.is_blast_released: # The explosion can never occur if the blast is not released.
             return False
 
-        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
+        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150) # Aids us in finding the point of collision
 
-        if not blast_rect.colliderect(enemy.hitbox):
-            return False
+        if not blast_rect.colliderect(enemy.hitbox): 
+            return False # This is fed into the enemy_get_hurt_by_blast function to ensure that the enemy only takes damage when the blast collides with it.
 
         self.is_blast_released = False
-        self.explosion_of_blast_when_collide_with_enemy(enemy)
+        self.explosion_of_blast_when_collide_with_enemy(enemy) # This is what leads to the explosion animation being played
         return True
 
     def explosion_of_blast_when_collide_with_enemy(self,enemy):
-        if not self.is_explosion_active:
+        if not self.is_explosion_active: # --> Foundations for which the explosion animation will be played by
             self.is_explosion_active = True
             self.explosion_frame_index = 0
             self.explosion_x = self.blast_x
@@ -425,19 +425,19 @@ class Player(pygame.sprite.Sprite):
         if not self.is_explosion_active:
             return
 
-        explosion_animation = self.attack_animations.get(f"{self.blast_type}_explosion", [])
-        if not explosion_animation:
+        explosion_animation = self.attack_animations.get(f"{self.blast_type}_explosion", []) # --> Importing the relevant files for the explosion anmation of their respective blast type
+        if not explosion_animation: # --> In case there are no animation files for the explosion animation, the explosion will not be played
             self.is_explosion_active = False
             return
 
         frame = int(self.explosion_frame_index)
-        explosion_image = pygame.transform.scale(explosion_animation[frame], (150, 150))
+        explosion_image = pygame.transform.scale(explosion_animation[frame], (150, 150)) # --> The original image is too small, and hence has to be scaled up to be more visible.
         self.screen.blit(explosion_image, (self.explosion_x, self.explosion_y))
 
-        self.explosion_frame_index += 0.25
-        if self.explosion_frame_index >= len(explosion_animation):
+        self.explosion_frame_index += 0.25 # --> Has to be faster than the speed of the blast itself for a more cohesive look.
+        if self.explosion_frame_index >= len(explosion_animation): # --> Ensures that this animation is only played once.
             self.is_explosion_active = False
-            self.explosion_frame_index = 0
+            self.explosion_frame_index = 0 # --> Helpful for the next time the animation is played as it will start from the beginning.
 
     
     def update(self):
