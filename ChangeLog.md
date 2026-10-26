@@ -113,3 +113,11 @@
                         i) The first subroutine checks if the blast has been released AND has collided with the enemy. Once those two conditions are fulfilled, then the explosion is to be activated and its coordinates set to match the position of the blast.
                         
                         ii)The second subroutine handles the appropriate explosion animation for their respective blast type, and renders it on the screen. 
+
+            2) Complete Integration of the individual blast attributes into their respective animations
+
+                  Initial Issue : Both blast types were given the same attributes such as the speed at which they travel with, instead of accounting the diffirences between the blue and the purple blast. Essentially, there is no point in making two attacks if there are no diffirences between them. The only exception is the damage they cause to the enemy
+
+                  Fix:
+                        i)I removed the self.blast_velocity and self.blast_cooldown variables from the main player class and rather assigned them in the attacking_animation_and_sound_effects() subroutine, so that they do not get in the way when they are reassigned to the relevant blast attribute.
+                        ii) I made the blast_attributes variable which gets the relevant properties of the blasts depending on the blast type using the getattr() function, and then brought back the two variables and assigned them to their respective attributes.  

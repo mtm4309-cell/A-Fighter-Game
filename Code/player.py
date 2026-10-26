@@ -73,17 +73,18 @@ class Player(pygame.sprite.Sprite):
 
         
         # -- Attack related variables -- #
+        self.blue_blast_attributes = {"Damage": 10, "Speed": 10, "Cooldown": 1500}
+        self.purple_blast_attributes = {"Damage": 15, "Speed": 15, "Cooldown": 2000}
+        
         self.is_player_attacking = False
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
         self.is_purple_blast_selected = False 
         self.is_blast_released = False
-        self.blast_cooldown = 1500 # (1.5 seconds)
         self.last_blast_time = -self.blast_cooldown
         self.attack_key_was_down = False
 
         self.attack_frame_index = 0
         self.attack_animation_speed = 0.10
-        self.blast_velocity = 10 # --> The speed at which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
         self.blast_x = self.player_x
         self.blast_y = self.player_y
         self.blast_facing_right = True
@@ -94,9 +95,6 @@ class Player(pygame.sprite.Sprite):
         self.explosion_frame_index = 0
         self.explosion_x = 0
         self.explosion_y = 0
-
-        self.blue_blast_attributes = {"Damage": 10, "Speed": 10, "Cooldown": 1.5}
-        self.purple_blast_attributes = {"Damage": 15, "Speed": 15, "Cooldown": 2.0}
 
         self.blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
 
@@ -368,6 +366,9 @@ class Player(pygame.sprite.Sprite):
                 self.blast_y = self.pos.y
                 self.blast_direction = 1 if self.blast_facing_right else -1
                 self.blast_type = 'blue_blast' if self.is_blue_blast_selected else 'purple_blast'
+                blast_attributes = getattr(self, f"{self.blast_type}_attributes") # --> Helps us in accessing the characteristics of each blast
+                self.blast_velocity = blast_attributes["Speed"]
+                self.blast_cooldown = blast_attributes["Cooldown"]
 
                 if self.blast_type == 'blue_blast':
                     pygame.mixer.Channel(1).play(self.blue_blast)
@@ -399,8 +400,7 @@ class Player(pygame.sprite.Sprite):
             if self.blast_direction == 1:
                 self.attack_image = pygame.transform.flip(self.attack_image, True, False)
             self.screen.blit(self.attack_image, (self.blast_x, self.blast_y))
-
-        
+      
     def collision_of_blast_with_enemy(self, enemy):
         if not self.is_blast_released: # The explosion can never occur if the blast is not released.
             return False
