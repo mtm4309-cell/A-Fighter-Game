@@ -120,4 +120,10 @@
 
                   Fix:
                         i)I removed the self.blast_velocity and self.blast_cooldown variables from the main player class and rather assigned them in the attacking_animation_and_sound_effects() subroutine, so that they do not get in the way when they are reassigned to the relevant blast attribute.
-                        ii) I made the blast_attributes variable which gets the relevant properties of the blasts depending on the blast type using the getattr() function, and then brought back the two variables and assigned them to their respective attributes.  
+                        ii) I made the blast_attributes variable which gets the relevant properties of the blasts depending on the blast type using the getattr() function, and then brought back the two variables and assigned them to their respective attributes.
+
+            3) Displaying the cooldown time
+
+                  Initial Issue : If the player has attacked once, and is in cooldown, all they are told is that they have to wait for cooldown, but they are not informed of how much time remains, and also due to the lack of information of the time of cooldown, they are more likely to press the attack button, and hence spam it.
+
+                  Fix : Under the condition that the time taken of the last blast and also that of the cooldown is greater than 0, the time in which the cooldown remains for is calculated first in miliseconds and then divided by 1000 to convert into seconds. This is then displayed onto the screen.  

@@ -80,7 +80,9 @@ class Player(pygame.sprite.Sprite):
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
         self.is_purple_blast_selected = False 
         self.is_blast_released = False
-        self.last_blast_time = -self.blast_cooldown
+        self.last_blast_time = 0 # --> Assigned later
+        self.blast_cooldown = 0 # --> Assigned later
+        self.blast_velocity = 0 # --> Assigned later
         self.attack_key_was_down = False
 
         self.attack_frame_index = 0
@@ -369,7 +371,7 @@ class Player(pygame.sprite.Sprite):
                 blast_attributes = getattr(self, f"{self.blast_type}_attributes") # --> Helps us in accessing the characteristics of each blast
                 self.blast_velocity = blast_attributes["Speed"]
                 self.blast_cooldown = blast_attributes["Cooldown"]
-
+                
                 if self.blast_type == 'blue_blast':
                     pygame.mixer.Channel(1).play(self.blue_blast)
 
@@ -379,6 +381,12 @@ class Player(pygame.sprite.Sprite):
                 self.select_attack_text = self.level_font.render("Blast is on cooldown!", False, "red")
                 self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
+        if self.last_blast_time > 0 and self.blast_cooldown > 0:
+            cooldown_remaining = max(0, (self.blast_cooldown - (current_time - self.last_blast_time)) / 1000) # Getting the remaining cooldown time in seconds
+            if cooldown_remaining > 0: # Essentially, for how long the cooldown remains.
+                cooldown_text = self.level_font.render(f"Cooldown: {cooldown_remaining:.1f}s", False, "red") # The time remaining is rounded up to 1 dp to avoid cluttering the screen with long decimal numbers.
+                self.screen.blit(cooldown_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.0))) # Place chosen via trial and error
+        
         
         if self.is_blast_released:
             attack_animation = self.attack_animations.get(self.blast_type, [])
