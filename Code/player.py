@@ -89,8 +89,11 @@ class Player(pygame.sprite.Sprite):
         self.blast_facing_right = True
         self.blast_direction = None # --> The direction in which the attack animation moves across the screen, this is to be used in the future when we implement the attack animations to move across the screen
         self.blast_type = None
-        self.blast_blasted = [] 
 
+        self.is_explosion_active = False
+        self.explosion_frame_index = 0
+        self.explosion_x = 0
+        self.explosion_y = 0
 
         self.blue_blast_attributes = {"Damage": 10, "Speed": 10, "Cooldown": 1.5}
         self.purple_blast_attributes = {"Damage": 15, "Speed": 15, "Cooldown": 2.0}
@@ -119,7 +122,8 @@ class Player(pygame.sprite.Sprite):
                            'east_death': [], 'west_death': [],
                            'east_attack':[], 'west_attack':[]}
 
-        self.attack_animations = {'blue_blast': [], 'purple_blast': []}
+        self.attack_animations = {'blue_blast': [], 'blue_blast_explosion': [], 
+                                  'purple_blast': [], 'purple_blast_explosion': []}
 
         for animation in self.animations.keys():
             full_path_1 = character_path + animation
@@ -310,7 +314,8 @@ class Player(pygame.sprite.Sprite):
         # Enemy status must be in attack
         
         if hasattr(enemy, 'status'): # --> Necessary for debugging
-            print(enemy.status)
+            pass
+            #print(enemy.status)
         else:
             print("Error: status is still not defined on this object!")
 
@@ -397,20 +402,44 @@ class Player(pygame.sprite.Sprite):
 
         
     def collision_of_blast_with_enemy(self, enemy):
-        
         if not self.is_blast_released:
             return False
-        
-        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
-        
-        if blast_rect.colliderect(enemy.hitbox):
-        
-                self.is_blast_released = False
-        
-                return True  # Collision detected
-        
-        return False  # No collision detected
 
+        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
+
+        if not blast_rect.colliderect(enemy.hitbox):
+            return False
+
+        self.is_blast_released = False
+        self.explosion_of_blast_when_collide_with_enemy(enemy)
+        return True
+
+    def explosion_of_blast_when_collide_with_enemy(self,enemy):
+        if not self.is_explosion_active:
+            self.is_explosion_active = True
+            self.explosion_frame_index = 0
+            self.explosion_x = self.blast_x
+            self.explosion_y = self.blast_y
+
+    def animation_of_explosion(self):
+        if not self.is_explosion_active:
+            return
+
+        explosion_animation = self.attack_animations.get(f"{self.blast_type}_explosion", [])
+        if not explosion_animation:
+            self.is_explosion_active = False
+            return
+
+        frame = int(self.explosion_frame_index)
+        explosion_image = pygame.transform.scale(explosion_animation[frame], (150, 150))
+        self.screen.blit(explosion_image, (self.explosion_x, self.explosion_y))
+
+        self.explosion_frame_index += 0.25
+        if self.explosion_frame_index >= len(explosion_animation):
+            self.is_explosion_active = False
+            self.explosion_frame_index = 0
+
+    
     def update(self):
         self.clock.tick(60)
         self.input()
@@ -421,6 +450,8 @@ class Player(pygame.sprite.Sprite):
         self.player_health()
         self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()
-
+        self.animation_of_explosion()
+    
     def player_update(self,enemy):
+        self.collision_of_blast_with_enemy(enemy)
         self.player_damage_health(enemy)

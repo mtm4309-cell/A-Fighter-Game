@@ -101,3 +101,15 @@
       Date: 24 / 10 / 2026
 
             1) Changing the position of the run and the blasts button vertically and their respective dimenstions --> They are now placed next below the health bar, and have been resized so as to not overpower the health bar.  
+
+      Date: 26 / 10 / 2026
+
+            1) Implementation of the explosion animations when the blasts colllide with the enemy.
+
+                  Initial Issue: Although the animation was complete, it would not appear on the screen when the blast collides with the enemy.
+
+                  Fix: Two subroutines were made that works alongside the  collision_of_blast_with_enemy() function to handle the activation and the display of the explosion animation. 
+                  
+                        i) The first subroutine checks if the blast has been released AND has collided with the enemy. Once those two conditions are fulfilled, then the explosion is to be activated and its coordinates set to match the position of the blast.
+                        
+                        ii)The second subroutine handles the appropriate explosion animation for their respective blast type, and renders it on the screen. 
