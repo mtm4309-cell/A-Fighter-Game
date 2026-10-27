@@ -419,10 +419,24 @@ class Player(pygame.sprite.Sprite):
             return False # This is fed into the enemy_get_hurt_by_blast function to ensure that the enemy only takes damage when the blast collides with it.
 
         self.is_blast_released = False
-        self.explosion_of_blast_when_collide_with_enemy(enemy) # This is what leads to the explosion animation being played
+        self.explosion_of_blast(enemy) # This is what leads to the explosion animation being played
         return True
 
-    def explosion_of_blast_when_collide_with_enemy(self,enemy):
+    def collision_of_blast_with_wall(self):
+        if not self.is_blast_released: # The explosion can never occur if the blast is not released.
+            return False
+
+        blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150) # Aids us in finding the point of collision
+
+        if (blast_rect.left < 0 or blast_rect.right > self.MAX_WIDTH 
+            or blast_rect.top < 0 or blast_rect.bottom > self.MAX_HEIGHT):
+            self.is_blast_released = False
+            self.explosion_of_blast(None) # This is what leads to the explosion animation being played
+            return True
+            
+        return False
+
+    def explosion_of_blast(self, enemy):
         if not self.is_explosion_active: # --> Foundations for which the explosion animation will be played by
             self.is_explosion_active = True
             self.explosion_frame_index = 0
@@ -459,7 +473,7 @@ class Player(pygame.sprite.Sprite):
         self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()
         self.animation_of_explosion()
-    
+        self.collision_of_blast_with_wall()
     def player_update(self,enemy):
         self.collision_of_blast_with_enemy(enemy)
         self.player_damage_health(enemy)
