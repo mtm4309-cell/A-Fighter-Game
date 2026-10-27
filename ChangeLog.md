@@ -133,3 +133,5 @@
             1) Making the blast explode when it has not collided with the enemy and has gone out of the screen.
                   Problem : Since the players are confined to the screen that they are in, making the blast to appear that they go out of the screen appearing that they have moved out of the screen gives the game an unappealing look.
                   Fix : I wrote a new subroutine (self.collision_of_blast_with_wall) which first makes a blast_rect, using the appropriate coordinates of the blast, and compares it with the dimensions of the screen (or 0), with which if the conditions are met, is then fed through the other relevant subroutines that bring forth the explosion animation.
+
+            2) Made a potential ideas file to brainstorm some possibilities which if materialised will go on the project checklist.

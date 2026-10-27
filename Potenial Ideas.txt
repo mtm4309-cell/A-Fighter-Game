@@ -1,0 +1,15 @@
+     Potential Ideas:
+
+    1) For Player : --> Sword Attack [In general, it is a normal sword attack with no cooldown, however, 
+     as the player increases in their stats, they will get an option to do a special sword attack where 
+     the animation consists of an apple being thrown in the direction of the enemy, and then 
+     the player slices the apple and hits the enemy simultaneously]
+
+     2) For Enemy : [Melee Attack] --> After hitting the player 5 times, the enemy can unlock a normal punch with which
+     after 5 times of normal punching, the enemy unlocks a special punch and then enemy tramsform with a red explosion and so the enemy gets red hair and the clothing changes, 
+     then the enemy unlocks the special punch [colour surrounding punch can either be yellow, orange, or red, or a mix between them] 
+
+     [Far-Range Attack]: A red trident is given to the enemy which is thrown and 
+     will damage the player with flames coming out of it, which will have a similar progression as to the punch.
+
+     3) Player gets opportunity to heal. 
