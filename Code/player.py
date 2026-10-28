@@ -327,10 +327,6 @@ class Player(pygame.sprite.Sprite):
                         self.health_being_updated = self.health_being_updated - 1
 
 
-    def no_collision_with_level_box(self):
-        
-        if self.hitbox.colliderect(self.level_box_rect):
-            print("COLLISION OCCURING!!")
 
     def attacking_animation_and_sound_effects(self):
         # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
@@ -470,7 +466,6 @@ class Player(pygame.sprite.Sprite):
         self.staying_in_screen()
         self.animate()
         self.player_health()
-        self.no_collision_with_level_box()        
         self.attacking_animation_and_sound_effects()
         self.animation_of_explosion()
         self.collision_of_blast_with_wall()

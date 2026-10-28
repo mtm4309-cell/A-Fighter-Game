@@ -138,5 +138,6 @@
 
       Date: 28 / 10 / 2026
 
-            1) Animation for the appearance of the health orb has been completed
+            1) Animation and outline for the appearance of the health orb has been completed
             2) New file (and class) has been made to dedicate any sort of upgrades or boosts called 'droppable.py', with which the foundation has been started.
+            3) Adding a black outline onto both the blue and purple blasts' explosion, to improve the look of the animation.
