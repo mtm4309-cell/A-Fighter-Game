@@ -13,3 +13,4 @@
      will damage the player with flames coming out of it, which will have a similar progression as to the punch.
 
      3) Player gets opportunity to heal. 
+     4) Putting obstacles for the player to get disturbed by

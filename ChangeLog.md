@@ -135,3 +135,8 @@
                   Fix : I wrote a new subroutine (self.collision_of_blast_with_wall) which first makes a blast_rect, using the appropriate coordinates of the blast, and compares it with the dimensions of the screen (or 0), with which if the conditions are met, is then fed through the other relevant subroutines that bring forth the explosion animation.
 
             2) Made a potential ideas file to brainstorm some possibilities which if materialised will go on the project checklist.
+
+      Date: 28 / 10 / 2026
+
+            1) Animation for the appearance of the health orb has been completed
+            2) New file (and class) has been made to dedicate any sort of upgrades or boosts called 'droppable.py', with which the foundation has been started.
