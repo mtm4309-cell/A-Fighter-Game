@@ -147,7 +147,7 @@
             1) Completing the foundation for the health orb.
 
                   i) Adding a collison based collision depending on the rects of both the player and the health orb
-                  ii) I update the orb's size and animation to use frames from the health_orb folder, and also manipulating what frames are to be played depending on whether certain conditions are met (Though there is still some logic error present)
+                  ii) I update the orb's size and animation to use frames from the health_orb folder, and also manipulating what frames are to be played depending on whether certain conditions are met, such that the animation is only played once and then the image displayed on the screen is to be the final frame, which remains like that up until the player collects the orb.
                   iii) Fixing the maximum recursion depth error which was caused by the cycling between two subroutines in the droppable class.
                   iv) Adding a 20 point health boost which is capped at 100 health.
 
