@@ -12,5 +12,5 @@ A custom 2D Python/Pygame fighting game built from scratch without tutorials. Fo
      [X] - Add collision detection for both the enemy and the player
      [X] - Add the fighting mechanics for the player and the enemy
      [1/2] - Add the relevant sound effects for both the player and the enemy
-     
+     [1/2] - Add a health orb as an opportunity for the player to heal
      
