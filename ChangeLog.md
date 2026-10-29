@@ -141,3 +141,14 @@
             1) Animation and outline for the appearance of the health orb has been completed
             2) New file (and class) has been made to dedicate any sort of upgrades or boosts called 'droppable.py', with which the foundation has been started.
             3) Adding a black outline onto both the blue and purple blasts' explosion, to improve the look of the animation.
+
+      Date: 29 / 10 / 2026:
+
+            1) Completing the foundation for the health orb.
+
+                  i) Adding a collison based collision depending on the rects of both the player and the health orb
+                  ii) I update the orb's size and animation to use frames from the health_orb folder, and also manipulating what frames are to be played depending on whether certain conditions are met (Though there is still some logic error present)
+                  iii) Fixing the maximum recursion depth error which was caused by the cycling between two subroutines in the droppable class.
+                  iv) Adding a 20 point health boost which is capped at 100 health.
+
+            [Note: This is still incomplete, as there are still some logic errors present,and I have more ideas regarding it]
