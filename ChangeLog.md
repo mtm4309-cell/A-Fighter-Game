@@ -160,5 +160,9 @@
             3) Appending the health orb with the following changes, though the following issues persist:
 
                   Changes:
-                        1) Adding a duration for the health orb, such that the orb should 'disappear' if the player's rect does not collide with the rect of the health orb.
-                        2) 
+                        1) Adding a duration for the health orb, such that the orb should 'disappear' if the player's rect does not collide with the rect of the health orb. This was done using pygame.time function, and likewise, determining for when the health orb should reappear depending on whether a change occured in the player's health.
+                        2) Randomising the x coordinate with which the health orb spawns at, rather than one fixed position.
+
+                  Issues:
+                        1) Rather than the health orb disappearing, the animation just plays again at a diffirent x coordinate.
+                        2) Due to the randomisation of the x coordinate, the health orb position is constantly changing when the player and the enemy health rects collide, hence there are chances that the player's health constantly increase by the moving around of the health orb instead of the player.
