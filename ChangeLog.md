@@ -157,7 +157,12 @@
 
             1) Adding outlines to the blast to make it more defined, give a more cohesive player experience.
             2) Playing around with the blast speed, to keep the user engaged by making it faster.
-            3) Appending the health orb with the following changes, though the following issues persist:
+            3) Adding a player healing sound effect when they collide with the health orb.
+            3) Making a sound effect for when the explosion occurs after collision with enemy or with the wall, with the following:
+                  i) Downloading sound effects from Pixabay; the intended vibe was an explosion that felt a bit distant, rather than an 8-bit pixel-like sound, and that was to prevent the inteference between other sound effects, for a more cohesive experience, with the relevant sound effect for the purple blast being more louder / intense as compared to the blue blast.
+                  ii) Playing the sound effect from channel 5 using the pygame.mixer function, with a condition based upon the frame index of the explosion.
+            
+            4) Appending the health orb with the following changes, though the following issues persist:
 
                   Changes:
                         1) Adding a duration for the health orb, such that the orb should 'disappear' if the player's rect does not collide with the rect of the health orb. This was done using pygame.time function, and likewise, determining for when the health orb should reappear depending on whether a change occured in the player's health.

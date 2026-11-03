@@ -31,11 +31,12 @@ class Player(pygame.sprite.Sprite):
         self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
         self.blue_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_not_selected.png").convert_alpha(), (100,100))
         self.blue_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_selected.png").convert_alpha(), (100,100))
-        
+        self.blue_blast_explosion_sound_effect = pygame.mixer.Sound("Sound Effects/blue_blast_explosion.mp3")
+
         self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
         self.purple_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_not_selected.png").convert_alpha(), (100,100))
         self.purple_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_selected.png").convert_alpha(), (100,100))
-
+        self.purple_blast_explosion_sound_effect = pygame.mixer.Sound("Sound Effects/purple_blast_explosion.mp3")
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
@@ -449,6 +450,11 @@ class Player(pygame.sprite.Sprite):
             return
 
         frame = int(self.explosion_frame_index)
+        if self.explosion_frame_index == 0:
+            sound_effect_to_be_played = self.__dict__.get(f"{self.blast_type}_explosion_sound_effect")
+            if sound_effect_to_be_played:
+                pygame.mixer.Channel(5).play(sound_effect_to_be_played)
+
         explosion_image = pygame.transform.scale(explosion_animation[frame], (150, 150)) # --> The original image is too small, and hence has to be scaled up to be more visible.
         self.screen.blit(explosion_image, (self.explosion_x, self.explosion_y))
 
@@ -457,6 +463,7 @@ class Player(pygame.sprite.Sprite):
             self.is_explosion_active = False
             self.explosion_frame_index = 0 # --> Helpful for the next time the animation is played as it will start from the beginning.
 
+    
     
     def update(self):
         self.clock.tick(60)
