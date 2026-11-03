@@ -1,4 +1,4 @@
-import pygame, player, random
+import pygame, random
 from support import import_folder
 class droppable():
     def __init__(self,screen):
@@ -8,7 +8,7 @@ class droppable():
         self.MAX_WIDTH = self.screen.get_width()
         self.MAX_HEIGHT = self.screen.get_height()
 
-        self.x_coordinate_at_which_health_orb_will_spawn = random.randint(0,self.MAX_WIDTH)
+        self.x_coordinate_at_which_health_orb_will_spawn = random.randint(0, max(0, self.MAX_WIDTH - 150))
 
         self.point_at_which_health_orb_will_spawn = (self.x_coordinate_at_which_health_orb_will_spawn, self.MAX_HEIGHT//2)
 
@@ -17,6 +17,7 @@ class droppable():
         self.frame_index = 0
         self.animation_speed = 0.15
         self.is_health_orb_collected = False
+        self.last_player_health = None
 
 
         original_health_orb_image = pygame.image.load("Sprites/droppable/health_orb/frame-001.png").convert_alpha()
@@ -47,7 +48,7 @@ class droppable():
                     self.frame_index = 0
 
             self.image = pygame.transform.scale(animation[int(self.frame_index)], (100, 100))
-
+        
         self.screen.blit(self.image, self.rect)
     
     def check_if_health_orb_is_collected(self,player):
@@ -56,6 +57,9 @@ class droppable():
             return False
 
         else:
+            if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:
+                return False
+
             self.animate_health_orb()
             if not self.is_health_orb_collected and player.rect.colliderect(self.rect):
                 return True
@@ -65,7 +69,7 @@ class droppable():
     def give_player_health_boost(self,player):
         if player.health_being_updated < 100 and player.health_being_updated > 30:
             player.health_being_updated += self.health_orb_attributes['Health Boost']
-            
+            player.player_heal.play()
             if player.health_being_updated > 100:                
                 player.health_being_updated = 100
 
@@ -74,19 +78,32 @@ class droppable():
             self.frame_index = 0
         print(f"Player health after collecting health orb: {player.health_being_updated}")        
 
-        self.is_health_orb_collected = False
 
-
-    def respawn_of_health_orb(self,player):
-        pass
+    def respawn_of_health_orb(self):
+        self.x_coordinate_at_which_health_orb_will_spawn = random.randint(0, max(0, self.MAX_WIDTH - 150))
+        self.point_at_which_health_orb_will_spawn = (
+            self.x_coordinate_at_which_health_orb_will_spawn,
+            self.MAX_HEIGHT // 2,
+        )
+        self.rect.topleft = self.point_at_which_health_orb_will_spawn
+        self.time_elapsed = pygame.time.get_ticks()
+        self.frame_index = 0
 
     
     def droppable_update_with_player(self,player):
+        current_health = player.health_being_updated
+        if self.last_player_health is None:
+            self.last_player_health = current_health
+        elif current_health != self.last_player_health:
+            self.respawn_of_health_orb()
+            self.is_health_orb_collected = False
+            self.last_player_health = current_health
+
         if self.is_health_orb_collected:
             return
 
         if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:
-            return
+            self.respawn_of_health_orb()
 
         if self.check_if_health_orb_is_collected(player):
             self.give_player_health_boost(player)

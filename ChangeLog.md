@@ -152,3 +152,13 @@
                   iv) Adding a 20 point health boost which is capped at 100 health.
 
             [Note: This is still incomplete, as there are still some logic errors present,and I have more ideas regarding it]
+
+      Date: 03 / 11 / 2026:
+
+            1) Adding outlines to the blast to make it more defined, give a more cohesive player experience.
+            2) Playing around with the blast speed, to keep the user engaged by making it faster.
+            3) Appending the health orb with the following changes, though the following issues persist:
+
+                  Changes:
+                        1) Adding a duration for the health orb, such that the orb should 'disappear' if the player's rect does not collide with the rect of the health orb.
+                        2) 
