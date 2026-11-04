@@ -2,7 +2,7 @@ import pygame, random, os, sys #IMPORTING NECESSARY LIBRARIES
 import button #IMPORTING MODULE FOR MAIN MENU AND FOR PAUSE
 from player import Player
 from enemy import Enemy
-from droppable import droppable
+from droppable import Droppable
 
 pygame.init() # Initialising Pygame
 
@@ -95,7 +95,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
     me = Player(100,5,100,1,WIN)
 
     enemy_1 = Enemy(100,100,5,5,WIN)
-    health_orb = droppable(WIN)
+    health_orb = Droppable(WIN)
     pygame.display.set_caption("Zain's Game")
 
 # ---- Changes above are to set up for what is to come next ---

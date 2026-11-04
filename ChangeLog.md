@@ -171,3 +171,8 @@
                   Issues:
                         1) Rather than the health orb disappearing, the animation just plays again at a diffirent x coordinate.
                         2) Due to the randomisation of the x coordinate, the health orb position is constantly changing when the player and the enemy health rects collide, hence there are chances that the player's health constantly increase by the moving around of the health orb instead of the player.
+
+      Date: 04 / 11 / 2026
+
+            1) Making the animation for the player healing in both eastwards and westwards.
+            2) Implementation of the player healing animation --> This was done via the self.has_player_collected_health_orb in the player class, which is initially set to False, this is set to True in the droppable class, and so the self.status variable of the player changes to '_heal' being included in that variable. The only problem is that the animation is a bit too fast.

@@ -1,6 +1,6 @@
 import pygame , time
 from support import import_folder
-
+import droppable
 class Player(pygame.sprite.Sprite):
     def __init__(self, health, speed, attack_dmg, level, screen):
     
@@ -72,6 +72,8 @@ class Player(pygame.sprite.Sprite):
         self.is_sprinting = False
         self.sprint_speed = self.speed * 2
 
+        self.has_player_collected_health_orb = False
+
         
         # -- Attack related variables -- #
         self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500}
@@ -121,7 +123,8 @@ class Player(pygame.sprite.Sprite):
         self.animations = {'east':[], 'west': [], 
                            'east_idle': [], 'west_idle':[], 
                            'east_death': [], 'west_death': [],
-                           'east_attack':[], 'west_attack':[]}
+                           'east_attack':[], 'west_attack':[],
+                           'east_heal': [], 'west_heal': []}
 
         self.attack_animations = {'blue_blast': [], 'blue_blast_explosion': [], 
                                   'purple_blast': [], 'purple_blast_explosion': []}
@@ -199,7 +202,13 @@ class Player(pygame.sprite.Sprite):
                     action = action.replace('_idle','_attack')
                 else:
                     action = '_attack'
-        
+
+            if self.has_player_collected_health_orb == True:
+                    if self.is_player_attacking == False:
+                        action = '_heal'
+                    else:
+                        action = action.replace('_attack','_heal')
+
         self.status = self.status + action
 
 
@@ -216,6 +225,10 @@ class Player(pygame.sprite.Sprite):
                 self.is_player_attacking = False
                 self.frame_index = 0
 
+        if self.has_player_collected_health_orb == True: # ----> The reason as to why heal has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the heal animation is played, and then the player goes back to idle or walk animation
+            if self.frame_index >= len(animation) - 1:
+                self.has_player_collected_health_orb = False
+                self.frame_index = 0
 
         self.image = pygame.transform.scale((animation[int(self.frame_index)]),(150,150))
         self.screen.blit(self.image,self.rect)
