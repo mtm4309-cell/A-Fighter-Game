@@ -176,3 +176,8 @@
 
             1) Making the animation for the player healing in both eastwards and westwards.
             2) Implementation of the player healing animation --> This was done via the self.has_player_collected_health_orb in the player class, which is initially set to False, this is set to True in the droppable class, and so the self.status variable of the player changes to '_heal' being included in that variable. The only problem is that the animation is a bit too fast.
+
+      Date: 05 / 11 / 2026
+
+            1) Solved the randomisation of the x coordinate problem in regards to the health orb. This was done by making a subroutine set specfically to set the coordinates and other details of the health orb, which is to be used in the other subroutines necessary. The end result is that the health orb does not unnecessarily move around, but rather is stuck to an x coordinate at that instant.
+            2) The health orb stops respawning if the time is done. This was by first setting the condition that there is no change in health, in which a while loop is placed dependent on the current health and the last_health variable of the player are not equal, in which the health orb will respawn AT A DIFFIRENT X COORDINATE.
