@@ -181,3 +181,7 @@
 
             1) Solved the randomisation of the x coordinate problem in regards to the health orb. This was done by making a subroutine set specfically to set the coordinates and other details of the health orb, which is to be used in the other subroutines necessary. The end result is that the health orb does not unnecessarily move around, but rather is stuck to an x coordinate at that instant.
             2) The health orb stops respawning if the time is done. This was by first setting the condition that there is no change in health, in which a while loop is placed dependent on the current health and the last_health variable of the player are not equal, in which the health orb will respawn AT A DIFFIRENT X COORDINATE.
+
+      Date: 06 / 11 / 2026:
+            1) Displaying the duration time remaining for the health orb --> The text is placed right above the rect of the health orb. This makes the health orb more noticebale, and creates a sense of urgency for the player, making them more likely to take the health orb.
+            2) Shrinking the rect of the health orb --> The reason for this was becaiuse initially the player would be at a significant distance away from the health orb, and yet somehow the player would be healed. For this reason the horizontal component of the health orb has been shrinked. A boolean variable has been introduced to ensure that for each instance of the health orb appearing, the time resets and then the time is displayed to ensure that correct information is being displayed.

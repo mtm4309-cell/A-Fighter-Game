@@ -21,10 +21,12 @@ class Droppable():
         original_health_orb_image = pygame.image.load("Sprites/droppable/health_orb/frame-001.png").convert_alpha()
         self.image = pygame.transform.scale(original_health_orb_image, (150, 150))
         self.rect = self.image.get_rect(topleft=self.point_at_which_health_orb_will_spawn)
+        self.rect.inflate_ip(-50, 0)
 
         self.import_health_orb_assets()
-
+        self.font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf", 40)
         self.time_elapsed = pygame.time.get_ticks()
+        self.health_orb_timer_started = False
 
     def import_health_orb_assets(self):
         # Load the frame sequence from the same directory as the orb image.
@@ -62,10 +64,16 @@ class Droppable():
             return False
 
         else:
+            if not self.health_orb_timer_started: # --> Ensures that for each appearance of the health orb, the timer starts only once, without any baggage from the previous instance.
+                self.time_elapsed = pygame.time.get_ticks()
+                self.health_orb_timer_started = True
             if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:
                 return False
 
             self.animate_health_orb()
+            remaining_duration = max(0, self.duration_for_health_orb_to_remain - (pygame.time.get_ticks() - self.time_elapsed))
+            duration_text = self.font.render(f"{remaining_duration / 1000:.1f}", True, (255, 255, 255))
+            self.screen.blit(duration_text, (self.rect.x + 50, self.rect.y - 30))
             if not self.is_health_orb_collected and player.rect.colliderect(self.rect):
                 return True
 
@@ -89,9 +97,9 @@ class Droppable():
         self.set_health_orb_spawn_point()
         self.rect.topleft = self.point_at_which_health_orb_will_spawn
         self.time_elapsed = pygame.time.get_ticks()
+        self.health_orb_timer_started = True
         self.frame_index = 0
-        
-    
+
     def droppable_update_with_player(self,player):
         
         current_health = player.health_being_updated
