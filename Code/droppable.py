@@ -64,16 +64,18 @@ class Droppable():
             return False
 
         else:
-            if not self.health_orb_timer_started: # --> Ensures that for each appearance of the health orb, the timer starts only once, without any baggage from the previous instance.
-                self.time_elapsed = pygame.time.get_ticks()
+            current_ticks = pygame.time.get_ticks()
+            if not self.health_orb_timer_started: # Start a fresh timer for each orb instance.
+                self.time_elapsed = current_ticks
                 self.health_orb_timer_started = True
-            if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:
-                return False
+            elapsed = current_ticks - self.time_elapsed
+            if elapsed >= self.duration_for_health_orb_to_remain:
+                return False # --> Once time is overdue, the health orb will disappear 
 
             self.animate_health_orb()
-            remaining_duration = max(0, self.duration_for_health_orb_to_remain - (pygame.time.get_ticks() - self.time_elapsed))
-            duration_text = self.font.render(f"{remaining_duration / 1000:.1f}", True, (255, 255, 255))
-            self.screen.blit(duration_text, (self.rect.x + 50, self.rect.y - 30))
+            remaining_duration = max(0, self.duration_for_health_orb_to_remain - elapsed) # Gives the player how much time remains to collect health orb
+            duration_text = self.font.render(f"{remaining_duration / 1000:.1f}s", True, (255, 255, 255))
+            self.screen.blit(duration_text, (self.rect.x + 50, self.rect.y - 50)) # Display the remaining time.
             if not self.is_health_orb_collected and player.rect.colliderect(self.rect):
                 return True
 
@@ -88,7 +90,7 @@ class Droppable():
 
 
             self.is_health_orb_collected = True
-            player.has_player_collected_health_orb = True            
+            player.has_player_collected_health_orb = True
             self.frame_index = 0
 
         print(f"Player health after collecting health orb: {player.health_being_updated}")        
@@ -96,8 +98,7 @@ class Droppable():
     def respawn_of_health_orb(self):
         self.set_health_orb_spawn_point()
         self.rect.topleft = self.point_at_which_health_orb_will_spawn
-        self.time_elapsed = pygame.time.get_ticks()
-        self.health_orb_timer_started = True
+        self.health_orb_timer_started = False
         self.frame_index = 0
 
     def droppable_update_with_player(self,player):
@@ -108,10 +109,8 @@ class Droppable():
         elif current_health != self.last_player_health:
             if self.is_health_orb_collected:
                 self.is_health_orb_collected = False
-                player.has_player_collected_health_orb = False
                 self.respawn_of_health_orb()
             if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:            
-                player.has_player_collected_health_orb = False
                 self.is_health_orb_collected = False
                 while not current_health == self.last_player_health:
                     self.respawn_of_health_orb()
