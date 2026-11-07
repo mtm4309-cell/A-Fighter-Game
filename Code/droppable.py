@@ -8,6 +8,12 @@ class Droppable():
         self.MAX_WIDTH = self.screen.get_width()
         self.MAX_HEIGHT = self.screen.get_height()
 
+        self.font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf", 40)
+        self.time_elapsed = pygame.time.get_ticks()
+
+
+        # -- INITIALISATION OF HEALTH ORB -- #
+        
         self.set_health_orb_spawn_point()
 
         self.health_orb_attributes = {'Duration': 5000, 'Health Boost': 20}
@@ -19,14 +25,22 @@ class Droppable():
 
 
         original_health_orb_image = pygame.image.load("Sprites/droppable/health_orb/frame-001.png").convert_alpha()
-        self.image = pygame.transform.scale(original_health_orb_image, (150, 150))
-        self.rect = self.image.get_rect(topleft=self.point_at_which_health_orb_will_spawn)
-        self.rect.inflate_ip(-50, 0)
+        self.health_image = pygame.transform.scale(original_health_orb_image, (150, 150))
+        self.health_rect = self.health_image.get_rect(topleft=self.point_at_which_health_orb_will_spawn)
+        self.health_rect.inflate_ip(-50, 0)
+        self.health_orb_timer_started = False
 
         self.import_health_orb_assets()
-        self.font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf", 40)
-        self.time_elapsed = pygame.time.get_ticks()
-        self.health_orb_timer_started = False
+
+        # -- END OF INITIALISATION OF HEALTH ORB -- #
+
+
+        # -- INITIALISATION OF BANANA PEEL -- #
+
+        #original_banana_peel_image = pygame.image.load("Sprites/droppable/banana_peel/frame_001.png").convert_alpha()
+        #self.banana_peel_image = pygame.transform.scale(original_banana_peel_image, (150, 150))
+        #self.banana_peel_rect = self.banana_peel_image.get_rect(topleft=self.point_at_which_banana_peel_will_spawn)
+
 
     def import_health_orb_assets(self):
         # Load the frame sequence from the same directory as the orb image.
@@ -54,9 +68,9 @@ class Droppable():
                 if self.is_health_orb_collected:
                     self.frame_index = 0
 
-            self.image = pygame.transform.scale(animation[int(self.frame_index)], (100, 100))
+            self.health_image = pygame.transform.scale(animation[int(self.frame_index)], (100, 100))
         
-        self.screen.blit(self.image, self.rect)
+        self.screen.blit(self.health_image, self.health_rect)
     
     def check_if_health_orb_is_collected(self,player):
 
@@ -75,8 +89,8 @@ class Droppable():
             self.animate_health_orb()
             remaining_duration = max(0, self.duration_for_health_orb_to_remain - elapsed) # Gives the player how much time remains to collect health orb
             duration_text = self.font.render(f"{remaining_duration / 1000:.1f}s", True, (255, 255, 255))
-            self.screen.blit(duration_text, (self.rect.x + 50, self.rect.y - 50)) # Display the remaining time.
-            if not self.is_health_orb_collected and player.rect.colliderect(self.rect):
+            self.screen.blit(duration_text, (self.health_rect.x + 50, self.health_rect.y - 50)) # Display the remaining time.
+            if not self.is_health_orb_collected and player.rect.colliderect(self.health_rect):
                 return True
 
         return False
@@ -97,11 +111,11 @@ class Droppable():
 
     def respawn_of_health_orb(self):
         self.set_health_orb_spawn_point()
-        self.rect.topleft = self.point_at_which_health_orb_will_spawn
+        self.health_rect.topleft = self.point_at_which_health_orb_will_spawn
         self.health_orb_timer_started = False
         self.frame_index = 0
 
-    def droppable_update_with_player(self,player):
+    def health_orb_update_with_player(self,player):
         
         current_health = player.health_being_updated
         if self.last_player_health is None:
@@ -125,4 +139,26 @@ class Droppable():
         if self.check_if_health_orb_is_collected(player):
             self.give_player_health_boost(player)
         
+    # -- END OF HEALTH ORB RELATED CODE -- #
+
+    def import_banana_peel_assets(self):
+        # Load the frame sequence from the same directory as the banana peel image.
+        banana_peel_path = "Sprites/droppable/banana_peel/"
+        self.banana_peel_animations = {'banana_peel': import_folder(banana_peel_path)}
+
+    def animate_banana_peel(self):
+        animation = self.banana_peel_animations['banana_peel']
+        if animation:
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(animation):
+                self.frame_index = 0
+
+            self.banana_peel_image = pygame.transform.scale(animation[int(self.frame_index)], (150, 150))
         
+        self.screen.blit(self.banana_peel_image, self.banana_peel_rect)
+
+
+    def banana_peel_update_with_player(self,player):
+        pass  # Placeholder for future banana peel update logic
+        
+    

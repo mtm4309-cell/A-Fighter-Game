@@ -108,7 +108,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
         enemy_1.enemy_update(me)
         enemy_1.update()
 
-        health_orb.droppable_update_with_player(me)
+        health_orb.health_orb_update_with_player(me)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

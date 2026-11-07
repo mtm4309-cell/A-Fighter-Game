@@ -73,11 +73,11 @@ class Player(pygame.sprite.Sprite):
         self.sprint_speed = self.speed * 2
 
         self.has_player_collected_health_orb = False
-
+        self.has_player_slipped_on_banana_peel = False
         
         # -- Attack related variables -- #
-        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500}
-        self.purple_blast_attributes = {"Damage": 15, "Speed": 25, "Cooldown": 4000}
+        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 17, 'Multiplier_for_enemy_knockback': 0.25}
+        self.purple_blast_attributes = {"Damage": 15, "Speed": 25, "Cooldown": 4000, 'Distance_by_which_enemy_goes_back': 47, 'Multiplier_for_enemy_knockback': 0.45}
         
         self.is_player_attacking = False
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.

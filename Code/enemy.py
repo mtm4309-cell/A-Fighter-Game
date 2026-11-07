@@ -1,4 +1,4 @@
-import pygame
+import pygame, random
 from support import import_folder
 from player import Player
 class Enemy():
@@ -9,6 +9,7 @@ class Enemy():
         self.speed = speed
 
         self.screen = screen
+        self.MAX_WIDTH = self.screen.get_width() # (x cordinate)
 
         self.enemy_x = 200
         self.enemy_y = 300
@@ -18,6 +19,7 @@ class Enemy():
 
         self.enemy_health = 100
         self.has_been_hit_by_blast = False
+        self.knockback_velocity = pygame.math.Vector2() # --> Initially a zero vector
 
         original_image = pygame.image.load("Sprites/enemy_sprite/east_idle/east.png").convert_alpha()
         
@@ -34,6 +36,9 @@ class Enemy():
 
     # --- START OF ASSETS --- #
         self.kick = pygame.mixer.Sound("Sound Effects/kick.mp3")
+        self.enemy_laugh = pygame.mixer.Sound("Sound Effects/enemy_laugh.mp3")
+        self.enemy_get_hurt = pygame.mixer.Sound("Sound Effects/enemy_get_hurt.mp3")
+        self.enemy_get_hurt.set_volume(0.1)
 
 
     # --- END OF ASSETS --- #
@@ -109,7 +114,13 @@ class Enemy():
             self.direction = self.direction.normalize()        
 
         self.pos.x +=self.direction.x * speed
-        #self.pos.x += self.speed
+        
+        self.pos += self.knockback_velocity # --> This will happen only when the enemy is hit by the blast, 
+        self.knockback_velocity *= 0.8 # --> Creates a deceleration effect, making things look smooth, this works as the self.knockback_velocity is changing when the enemy is hit by the blast.
+        
+        if self.knockback_velocity.length_squared() < 0.01: # --> A threshold to determine when to stop knockback effect.
+            self.knockback_velocity.update(0, 0)
+        
         self.rect.topleft = self.pos
 
         self.hitbox.center = self.rect.center
@@ -164,27 +175,54 @@ class Enemy():
             self.is_kick_sound_played = False
     
     def enemy_get_hurt_by_blast(self,player):
-
         # Detect the collision as soon as the blast overlaps the enemy.
         if player.collision_of_blast_with_enemy(self):
+            if self.has_been_hit_by_blast:
+                return
+            self.has_been_hit_by_blast = True
                    
             if player.blast_type == "blue_blast":
                 damage = player.blue_blast_attributes["Damage"]
+                distance_by_which_enemy_goes_back = player.blue_blast_attributes["Distance_by_which_enemy_goes_back"]
+                multiplier_for_enemy_knockback = player.blue_blast_attributes["Multiplier_for_enemy_knockback"]
             elif player.blast_type == "purple_blast":
                 damage = player.purple_blast_attributes["Damage"]
+                distance_by_which_enemy_goes_back = player.purple_blast_attributes["Distance_by_which_enemy_goes_back"]
+                multiplier_for_enemy_knockback = player.purple_blast_attributes["Multiplier_for_enemy_knockback"]
             else:
                 damage = 0
+                distance_by_which_enemy_goes_back = 0
 
-
+            if self.rect.centerx != player.rect.centerx: # --> Knockback effect will only be applied if the enemy and player are not perfectly aligned vertically.
+                if self.rect.centerx > player.rect.centerx: # --> This stops the glitch where the enemy goes upwards.
+                    knockback_direction = 1  
+                else:
+                    knockback_direction = -1
+            else: # --> If the enemy and player are perfectly aligned vertically, we determine what direction the enemy should be knocked back based on its current status (facing east or west).
+                if 'east' in self.status:
+                    knockback_direction = -1
+                else:
+                    knockback_direction = 1
+            
+            self.knockback_velocity.x += knockback_direction * distance_by_which_enemy_goes_back * multiplier_for_enemy_knockback 
+            # --> By how much the knockback velocity is increased depends on the distance by which the enemy goes back and the multiplier for enemy knockback. The multiplier is used to adjust the knockback effect based on the blast type.
+                
             self.enemy_health = self.enemy_health - damage
                 
             print(f"Enemy health after blast: {self.enemy_health}")
+            self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
+        else:
+            self.has_been_hit_by_blast = False
 
-            
+    def enemy_stay_within_screen_boundaries(self):
+        # Useful especially when the enemy is hit by the blast and is knocked back, to ensure it doesn't go off-screen.
+        if self.pos.x < 0:
+            self.pos.x = 0
+        elif self.pos.x > self.MAX_WIDTH - self.rect.width:
+            self.pos.x = self.MAX_WIDTH - self.rect.width   
           
-    
-
     def update(self):
+        self.enemy_stay_within_screen_boundaries()
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
         self.move(self.speed)
         self.animate()
@@ -192,7 +230,9 @@ class Enemy():
         self.enemy_health_bar()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
-    
+        #choice_for_laugh = random.choice([1,2,3])  
+        #self.enemy_laugh.play() if choice_for_laugh == 1 else None  # Play the laugh sound effect with a 1 in 3 chance
+
     def enemy_update(self,player):
         self.get_status(player)
         self.get_actions(player)
