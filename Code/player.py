@@ -140,46 +140,42 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
     
-        if not ('_heal' in self.status) and not ( '_death'  in self.status): # --> The player cannot move when they are healing or dead
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                self.direction.x = 1
-                self.status = 'east'
-                self.blast_facing_right = True
-            elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                self.direction.x = -1
-                self.status = 'west'
-                self.blast_facing_right = False
-            else:
-                self.direction.x = 0
-
-            if pygame.KEYDOWN:
-                if keys[pygame.K_SPACE]:
-                    self.is_jumping = True
-        
-                if keys[pygame.K_r] and self.press_r == False:
-                    if self.is_sprinting == False:
-                        self.speed = self.sprint_speed
-                        self.animation_speed = 0.25
-                
-                        self.is_sprinting = True
-            
-                else:
-                    self.speed = self.sprint_speed /2
-                    self.animation_speed = 0.15
-                    self.is_sprinting = False
-                
-            if self.is_jumping == True:
-                self.pos.y -= self.jump_speed
-                self.jump_speed -= self.gravity
-
-                if self.jump_speed < -self.jump_height and self.pos.y > self.player_y:
-                    self.is_jumping = False
-                    self.jump_speed = self.jump_height
-                    self.pos.y = self.player_y      
-        
-        else: # --> So that all current movement stops when healing or dead
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.direction.x = 1
+            self.status = 'east'
+            self.blast_facing_right = True
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.direction.x = -1
+            self.status = 'west'
+            self.blast_facing_right = False
+        else:
             self.direction.x = 0
-            self.direction.y = 0
+
+        if pygame.KEYDOWN:
+            if keys[pygame.K_SPACE]:
+                self.is_jumping = True
+    
+            if keys[pygame.K_r] and self.press_r == False:
+                if self.is_sprinting == False:
+                    self.speed = self.sprint_speed
+                    self.animation_speed = 0.25
+            
+                    self.is_sprinting = True
+        
+            else:
+                self.speed = self.sprint_speed /2
+                self.animation_speed = 0.15
+                self.is_sprinting = False
+            
+        if self.is_jumping == True:
+            self.pos.y -= self.jump_speed
+            self.jump_speed -= self.gravity
+
+            if self.jump_speed < -self.jump_height and self.pos.y > self.player_y:
+                self.is_jumping = False
+                self.jump_speed = self.jump_height
+                self.pos.y = self.player_y      
+
 
     def get_status(self):
     
