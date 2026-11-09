@@ -193,3 +193,7 @@
             2) Completing the animation of the banana peel.
             3) Causing the enemy to go back when the blast collides with the enemy. This was done by first creating a vector quantity, initially assigned to zero and its assignment changes when the enemy gets hurt by the blast. Following from that, the position of the enemy relative to the player is checked, so as to first determine in what direction the knockback should occur by. Lastly, the x component of the knocback velocity is formed from the two properties of the blast, namely the distance by which enemy is pushed back and the multiplier for the knockback, which is either positive or negative depending on the direction of the enemy, which updates the position of the enemy.
             4) Adding sound effects for both when the enemy gets hurt and for the enemy laughing. Only the enemy getting hurt sound effect has been implemented into the code.
+            5) Checking the x component of the position of the enemy to ensure that the enemy doesn't go out of the screen, especially due to the knockback effect.
+
+      Date: 09 / 11 / 2026:
+            1) Implementation of the enemy laughing sound effect --> The sound will be played across the game depending on the condition that out of every 500, the number '1' is chosen using the random function. This ensures that the sound effect is properly spaced out whilst being frequent enough, the number '500' may be subject to change.
