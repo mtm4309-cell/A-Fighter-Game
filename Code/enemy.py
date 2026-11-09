@@ -48,8 +48,8 @@ class Enemy():
     def import_enemy_assets(self):
         enemy_path = "Sprites/enemy_sprite/"
 
-        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 
-                           'west_idle': [], 'west_walk': [], 'west_attack' : []}
+        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 
+                           'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': []}
 
         for animation in self.animations.keys():
             full_path = enemy_path + animation
@@ -95,7 +95,13 @@ class Enemy():
             state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
 
+        if self.has_been_hit_by_blast == True: # --> If the enemy has been hit by the blast, it will enter the hurt state, regardless of whether the player is within the notice or attack radius.
+            state = '_hurt'
+            self.direction = pygame.math.Vector2(0, 0) # --> The enemy will not move towards the player when it is hurt by the blast, it will only be knocked back by the blast.
+            self.animation_speed = 0.25
         new_status = horizontal_pos + state
+
+
     
         if new_status != self.status:
             self.frame_index = 0
@@ -214,7 +220,9 @@ class Enemy():
             print(f"Enemy health after blast: {self.enemy_health}")
             self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
         else:
-            self.has_been_hit_by_blast = False
+            if self.frame_index >= len(self.animations[self.status]) - 1: # --> Ensures only ONE loop of the hurt animation is played, then everything is set to fakse.
+                self.has_been_hit_by_blast = False
+                self.animation_speed = 0.15  # Reset the animation speed to its original value after the hurt animation is complete
 
     def enemy_stay_within_screen_boundaries(self):
         # Useful especially when the enemy is hit by the blast and is knocked back, to ensure it doesn't go off-screen.

@@ -197,3 +197,5 @@
 
       Date: 09 / 11 / 2026:
             1) Implementation of the enemy laughing sound effect --> The sound will be played across the game depending on the condition that out of every 500, the number '1' is chosen using the random function. This ensures that the sound effect is properly spaced out whilst being frequent enough, the number '500' may be subject to change.
+            2) Animating the enemy getting hurt, which is a total of 5 frames.
+            3) Implementing the animation into the code --> This was done by changing the status of the enemy to 'hurt' depending on whether self.has_been_hit_by_blast is True. From there the animation speed is increased, and that variable is set to True up until one loop of the animation is played, which then is set to false and the animation speed is reduced to the original
