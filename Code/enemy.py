@@ -174,7 +174,7 @@ class Enemy():
             pygame.mixer.Channel(3).play(self.kick)
             self.is_kick_sound_played = False
         if self.enemy_health > 0: # Only played when the enemy is alive, and not dead.
-            pygame.mixer.Channel(5).play(self.enemy_laugh) if random.randint(1, 500) == 1 else None  # Play the laugh sound effect with a 1 in every 500 chances, the number chosen is arbritary.
+            pygame.mixer.Channel(4).play(self.enemy_laugh) if random.randint(1, 500) == 1 else None  # Play the laugh sound effect with a 1 in every 500 chances, the number chosen is arbritary.
     
     def enemy_get_hurt_by_blast(self,player):
         # Detect the collision as soon as the blast overlaps the enemy.
