@@ -1,5 +1,5 @@
 import pygame, random
-from support import import_folder
+from support import import_folder, load_image
 class Droppable():
     def __init__(self,screen):
 
@@ -23,8 +23,10 @@ class Droppable():
         self.is_health_orb_collected = False
         self.last_player_health = None
 
+        # [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
+        
 
-        original_health_orb_image = pygame.image.load("Sprites/droppable/health_orb/frame-001.png").convert_alpha()
+        original_health_orb_image = load_image("Sprites/droppable/health_orb/frame-001.png")
         self.health_image = pygame.transform.scale(original_health_orb_image, (150, 150))
         self.health_rect = self.health_image.get_rect(topleft=self.point_at_which_health_orb_will_spawn)
         self.health_rect.inflate_ip(-50, 0)

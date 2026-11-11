@@ -199,3 +199,17 @@
             1) Implementation of the enemy laughing sound effect --> The sound will be played across the game depending on the condition that out of every 500, the number '1' is chosen using the random function. This ensures that the sound effect is properly spaced out whilst being frequent enough, the number '500' may be subject to change.
             2) Animating the enemy getting hurt, which is a total of 5 frames.
             3) Implementing the animation into the code --> This was done by changing the status of the enemy to 'hurt' depending on whether self.has_been_hit_by_blast is True. From there the animation speed is increased, and that variable is set to True up until one loop of the animation is played, which then is set to false and the animation speed is reduced to the original
+
+      Date: 11 / 11 / 2026:
+            1) Removed the before fullscreen audio, as it interfered with the coherence of the game.
+            2) 
+                  Initial Issue: Loading assets taking time for the game to actually load, whilst the loading animation is an obsolete cutscene without any significance.
+
+                  Fixes: Used Github's copilot as assistance to do the following:
+                        i) Loading files / sound effects that are involved in the GAME itself, rather than the menu are dealt with the subroutines from support.py in all the relevant files and classes.
+                        ii) Storing all the UI related / Non - Game assets in a dictionary in the support.py file
+                        iii) Making a cache key for each necessary file path, aiding in efficient fetching of assets
+                        iv) Automatic discovery of relevant game assets
+                        v) Adding asset validation based on supported file extensions mentioned in support.py
+                        vi) Organising asset loading responsibilities into diffirent subroutines, which is more convienient.
+                        vii) Normalising file paths before caching to ensure that the cache keys are consistent.

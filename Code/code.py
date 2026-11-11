@@ -3,6 +3,7 @@ import button #IMPORTING MODULE FOR MAIN MENU AND FOR PAUSE
 from player import Player
 from enemy import Enemy
 from droppable import Droppable
+from support import game_asset_paths, load_game_asset, load_image
 
 pygame.init() # Initialising Pygame
 
@@ -14,7 +15,7 @@ WIN = pygame.display.set_mode((WIDTH,HEIGHT),pygame.RESIZABLE) #Setting up the b
 
 
 fullscreen = False #Checks if the user is in fullscreen or not
-before_fullscreen_sound = False #If this is false, the [no_fullscreen sound] is played
+before_fullscreen = False #If this is false, the [no_fullscreen sound] is played
 after_fullscreen_sound = True #When True, an audio is played for the mainmenu
 # The three variables above will aid in checking whether if the window is in fullscreen or in the values of WIDTH AND HEIGHT
 
@@ -32,9 +33,8 @@ game_icon = pygame.image.load("UI related/ICON/myicon.ico")
 
 background_after_fullscreen = pygame.image.load("UI related/BACKGROUNDS/maybe_main_menu.png")
 after_fullscreen = pygame.mixer.Sound("Sound Effects/after_fullscreen.mp3")
-no_fullscreen = pygame.mixer.Sound("Sound Effects/no_fullscreen.mp3")
 
-arena = pygame.image.load("UI related/BACKGROUNDS/arena.png")
+arena = load_image("UI related/BACKGROUNDS/arena.png") # --> Uses the load_image function from support.py as it is a game asset, rather than a menu asset.
 
 game_paused_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/game_paused.png"),(420,330))
 resume_button_image = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/resume_button.png"), (350,250))
@@ -59,33 +59,43 @@ running = True # Checks if the actual game is running
 
 
 def loading_screen():
-    progress_bar_value = 0 #Helps us to fill the loading bar and to get the percentage of loading bar filled
-    
     pygame.display.set_caption("LOADING...") #Diffirentiates this screen from other screens 
     
     after_fullscreen.fadeout(1000) #Stops all audio played previously
     
     loading_message = ["..." , "...", "..."] 
     random_message = random.choice(loading_message) #Gives user a message to read as they wait for the game to load
-    
-    while progress_bar_value < 400: #When the loading bar isn't filled
+
+    asset_paths = game_asset_paths()  # --> Uses the function from support.py to get all the game asset paths (images and sounds) that need to be loaded.
+    total_assets = len(asset_paths)  # --> Total number of assets to be loaded, used to calculate the loading progress.
+
+    def draw_loading_screen(progress):
         WIN.fill("grey26") # Colour of the screen
 
         loading_bar_empty = pygame.draw.rect(WIN,"azure3", (WIDTH*0.36,HEIGHT * 0.525,400,10), 1) #The loading bar
-        loading_bar_full = pygame.draw.rect(WIN,"white", (WIDTH*0.36,HEIGHT * 0.525,progress_bar_value,10)) #This is what fills up the loading bar
+        loading_bar_full = pygame.draw.rect(WIN,"white", (WIDTH*0.36,HEIGHT * 0.525,400 * progress,10)) #This is what fills up the loading bar
 
         loading_message_display = first_font.render(f"Tip : {random_message}", True, "white") #Outputs a tip for the player (how generous)
         WIN.blit(loading_message_display, ((WIDTH*0.42),(HEIGHT * 0.45))) #Actual display of the message
-        progress_bar_value += 5 #random.uniform(0.3,0.8) #How much does the bar get filled up by
         
-        loading_percentage = round(((progress_bar_value / 400) * 100),1)
+        loading_percentage = round(progress * 100, 1)
         loading_percentage_message = first_font.render(F"Loading : {loading_percentage}%", True, "white")
         WIN.blit(loading_percentage_message, ((WIDTH*0.47),(HEIGHT * 0.55))) #Outputting the percentage of how much loading is completed
-            
+
+    draw_loading_screen(0) # --> Initially draws the loading screen with 0% progress
+    pygame.display.flip()
+
+    for loaded_assets, asset_path in enumerate(asset_paths, start=1):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+
+        load_game_asset(asset_path) # --> Assets are loaded one by one via this function from support.py.
+        draw_loading_screen(loaded_assets / total_assets) # --> Updates the loading screen with the current progress.
+        pygame.display.flip()
         clock.tick(60)
 
-        pygame.display.flip()
-    pygame.event.clear()
+    return True # If all assets are loaded, the game will start and the loading screen will disappear.
 
 def play(play_width,play_height): # This subroutine is where the actual game will occur
     playing = True
@@ -191,19 +201,19 @@ while running:
         elif event.type == pygame.WINDOWRESTORED: # When the user presses the middle button
             
             fullscreen = False
-            after_fullscreen.fadeout(1000) #No audio shall play
+            after_fullscreen.stop() #No audio shall play outside fullscreen
+            after_fullscreen_sound = False
 
         elif event.type == pygame.WINDOWMINIMIZED: #The game screen is gone but NOT stopped
             
             after_fullscreen_sound = False
-            after_fullscreen.fadeout(1000) #No audio is to play
+            after_fullscreen.stop() #No audio is to play while minimized
             
 ## -- Performance Fix --> Minimising CPU Utilisation by fixing loop indenation and timing -- ##
     if fullscreen == False: # When the user is not in fullscreen
-        if before_fullscreen_sound == False: #And no audio is being played
+        if before_fullscreen == False: 
                 
-            before_fullscreen_sound = True #The before fullscreen audio shall play
-            no_fullscreen.play(-1,0,500)
+            before_fullscreen = True # All the things needed for this part will be presented.
 
             # ----- Telling user to go fullscreen ----- #
 
@@ -215,10 +225,8 @@ while running:
             WIN.blit(message, (220,330))
 
     else: #When the user goes into fullscreen
-        if before_fullscreen_sound == True: #Checks if the before_fullscreen audio plays
-                
-            no_fullscreen.fadeout(1000)
-            before_fullscreen_sound = False #The before audio is gone
+        if before_fullscreen == True: #Just in case
+            before_fullscreen = False 
             
             # ---- The Main Menu ---- #
         if after_fullscreen_sound == False: # This will aid us in playing this audio once the user returns from the pause menn
@@ -246,8 +254,10 @@ while running:
                 pygame.event.pump()
             pygame.time.delay(25) #Makes things look smoother
                 
-            loading_screen()
-            play(WIDTH,HEIGHT) # The game starts
+            if loading_screen():
+                play(WIDTH,HEIGHT) # The game starts
+            else:
+                running = False
 
         if exit_button_actual.draw(WIN): # When exit button is pressed                                
             click_button_sound.play()

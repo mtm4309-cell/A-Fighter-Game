@@ -1,5 +1,5 @@
 import pygame, random
-from support import import_folder
+from support import import_folder, load_image, load_sound
 from player import Player
 class Enemy():
     def __init__(self, health, damage,speed, level,screen):
@@ -21,7 +21,10 @@ class Enemy():
         self.has_been_hit_by_blast = False
         self.knockback_velocity = pygame.math.Vector2() # --> Initially a zero vector
 
-        original_image = pygame.image.load("Sprites/enemy_sprite/east_idle/east.png").convert_alpha()
+        # [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
+        
+
+        original_image = load_image("Sprites/enemy_sprite/east_idle/east.png")
         
         
         self.image = pygame.transform.scale(original_image, (500,500))
@@ -34,10 +37,10 @@ class Enemy():
 
         self.is_kick_sound_played = False
 
-    # --- START OF ASSETS --- #
-        self.kick = pygame.mixer.Sound("Sound Effects/kick.mp3")
-        self.enemy_laugh = pygame.mixer.Sound("Sound Effects/enemy_laugh.mp3")
-        self.enemy_get_hurt = pygame.mixer.Sound("Sound Effects/enemy_get_hurt.mp3")
+    # --- START OF ASSETS --- # 
+        self.kick = load_sound("Sound Effects/kick.mp3")
+        self.enemy_laugh = load_sound("Sound Effects/enemy_laugh.mp3")
+        self.enemy_get_hurt = load_sound("Sound Effects/enemy_get_hurt.mp3")
         self.enemy_get_hurt.set_volume(0.1)
 
 
@@ -98,7 +101,7 @@ class Enemy():
         if self.has_been_hit_by_blast == True: # --> If the enemy has been hit by the blast, it will enter the hurt state, regardless of whether the player is within the notice or attack radius.
             state = '_hurt'
             self.direction = pygame.math.Vector2(0, 0) # --> The enemy will not move towards the player when it is hurt by the blast, it will only be knocked back by the blast.
-            self.animation_speed = 0.25
+            self.animation_speed = 0.20
         new_status = horizontal_pos + state
 
 

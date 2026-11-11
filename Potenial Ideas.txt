@@ -9,7 +9,7 @@
      after 5 times of normal punching, the enemy unlocks a special punch and then enemy tramsform with a red explosion and so the enemy gets red hair and the clothing changes, 
      then the enemy unlocks the special punch [colour surrounding punch can either be yellow, orange, or red, or a mix between them] 
 
-     [Far-Range Attack]: A red trident is given to the enemy which is thrown and 
+     [Far-Range Attack]: A red scythe is given to the enemy which is thrown and 
      will damage the player with flames coming out of it, which will have a similar progression as to the punch.
 
      3) Player gets opportunity to heal.  --> Done

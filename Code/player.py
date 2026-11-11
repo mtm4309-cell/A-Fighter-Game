@@ -1,5 +1,5 @@
 import pygame , time
-from support import import_folder
+from support import import_folder, load_image, load_sound
 import droppable
 class Player(pygame.sprite.Sprite):
     def __init__(self, health, speed, attack_dmg, level, screen):
@@ -14,29 +14,29 @@ class Player(pygame.sprite.Sprite):
         global health_being_updated
         self.health_being_updated = 100 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
 
-    # --- ASSETS --- # 
+    # --- ASSETS --- #  [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
         
-        original_image = pygame.image.load("Sprites/player_sprite/east_idle/east.png").convert_alpha()
+        original_image = load_image("Sprites/player_sprite/east_idle/east.png")
         self.image = pygame.transform.scale(original_image, (150,150))
 
-        self.when_not_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_not_running.png").convert_alpha(), (85,85))
-        self.when_running_image = pygame.transform.scale(pygame.image.load("UI related/BACKGROUNDS/when_running.png").convert_alpha(), (85,85))
+        self.when_not_running_image = pygame.transform.scale(load_image("UI related/BACKGROUNDS/when_not_running.png"), (85,85))
+        self.when_running_image = pygame.transform.scale(load_image("UI related/BACKGROUNDS/when_running.png"), (85,85))
 
-        level_image = pygame.image.load("UI related/BACKGROUNDS/level_template.png")
+        level_image = load_image("UI related/BACKGROUNDS/level_template.png")
         self.level_image = pygame.transform.scale(level_image, (385,75))
 
-        self.player_death = pygame.mixer.Sound("Sound Effects/player_death.mp3")
-        self.player_heal = pygame.mixer.Sound("Sound Effects/player_heal.wav")
+        self.player_death = load_sound("Sound Effects/player_death.mp3")
+        self.player_heal = load_sound("Sound Effects/player_heal.wav")
 
-        self.blue_blast = pygame.mixer.Sound("Sound Effects/blue_blast.mp3")
-        self.blue_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_not_selected.png").convert_alpha(), (100,100))
-        self.blue_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/blue_blast_button_selected.png").convert_alpha(), (100,100))
-        self.blue_blast_explosion_sound_effect = pygame.mixer.Sound("Sound Effects/blue_blast_explosion.mp3")
+        self.blue_blast = load_sound("Sound Effects/blue_blast.mp3")
+        self.blue_blast_button_not_selected = pygame.transform.scale(load_image("UI related/BUTTONS/blue_blast_button_not_selected.png"), (100,100))
+        self.blue_blast_button_selected = pygame.transform.scale(load_image("UI related/BUTTONS/blue_blast_button_selected.png"), (100,100))
+        self.blue_blast_explosion_sound_effect = load_sound("Sound Effects/blue_blast_explosion.mp3")
 
-        self.purple_blast = pygame.mixer.Sound("Sound Effects/purple_blast.mp3")
-        self.purple_blast_button_not_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_not_selected.png").convert_alpha(), (100,100))
-        self.purple_blast_button_selected = pygame.transform.scale(pygame.image.load("UI related/BUTTONS/purple_blast_button_selected.png").convert_alpha(), (100,100))
-        self.purple_blast_explosion_sound_effect = pygame.mixer.Sound("Sound Effects/purple_blast_explosion.mp3")
+        self.purple_blast = load_sound("Sound Effects/purple_blast.mp3")
+        self.purple_blast_button_not_selected = pygame.transform.scale(load_image("UI related/BUTTONS/purple_blast_button_not_selected.png"), (100,100))
+        self.purple_blast_button_selected = pygame.transform.scale(load_image("UI related/BUTTONS/purple_blast_button_selected.png"), (100,100))
+        self.purple_blast_explosion_sound_effect = load_sound("Sound Effects/purple_blast_explosion.mp3")
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
