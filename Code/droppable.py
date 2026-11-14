@@ -118,28 +118,29 @@ class Droppable():
         self.frame_index = 0
 
     def health_orb_update_with_player(self,player):
-        
-        current_health = player.health_being_updated
-        if self.last_player_health is None:
-            self.last_player_health = current_health
-        elif current_health != self.last_player_health:
-            if self.is_health_orb_collected:
-                self.is_health_orb_collected = False
-                self.respawn_of_health_orb()
-            if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:            
-                self.is_health_orb_collected = False
-                while not current_health == self.last_player_health:
+
+        if self.point_at_which_health_orb_will_spawn != player.player_x:
+            current_health = player.health_being_updated
+            if self.last_player_health is None:
+                self.last_player_health = current_health
+            elif current_health != self.last_player_health:
+                if self.is_health_orb_collected:
+                    self.is_health_orb_collected = False
                     self.respawn_of_health_orb()
-                    break
+                if pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain:            
+                    self.is_health_orb_collected = False
+                    while not current_health == self.last_player_health:
+                        self.respawn_of_health_orb()
+                        break
 
-            self.last_player_health = current_health
+                self.last_player_health = current_health
 
-        if self.is_health_orb_collected:
-            return
+            if self.is_health_orb_collected:
+                return
 
-            
-        if self.check_if_health_orb_is_collected(player):
-            self.give_player_health_boost(player)
+                
+            if self.check_if_health_orb_is_collected(player):
+                self.give_player_health_boost(player)
         
     # -- END OF HEALTH ORB RELATED CODE -- #
 

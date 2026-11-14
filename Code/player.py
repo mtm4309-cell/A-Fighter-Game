@@ -74,6 +74,7 @@ class Player(pygame.sprite.Sprite):
 
         self.has_player_collected_health_orb = False
         self.has_player_slipped_on_banana_peel = False
+        self.is_player_damaged = False
         
         # -- Attack related variables -- #
         self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 17, 'Multiplier_for_enemy_knockback': 0.25}
@@ -124,7 +125,8 @@ class Player(pygame.sprite.Sprite):
                            'east_idle': [], 'west_idle':[], 
                            'east_death': [], 'west_death': [],
                            'east_attack':[], 'west_attack':[],
-                           'east_heal': [], 'west_heal': []}
+                           'east_heal': [], 'west_heal': [],
+                           'east_hurt': [], 'west_hurt': []}
 
         self.attack_animations = {'blue_blast': [], 'blue_blast_explosion': [], 
                                   'purple_blast': [], 'purple_blast_explosion': []}
@@ -139,43 +141,46 @@ class Player(pygame.sprite.Sprite):
 
     def input(self):
         keys = pygame.key.get_pressed()
-    
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.direction.x = 1
-            self.status = 'east'
-            self.blast_facing_right = True
-        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.direction.x = -1
-            self.status = 'west'
-            self.blast_facing_right = False
+
+        if not 'heal' in self.status: # --> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.direction.x = 1
+                self.status = 'east'
+                self.blast_facing_right = True
+            elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.direction.x = -1
+                self.status = 'west'
+                self.blast_facing_right = False
+            else:
+                self.direction.x = 0
+
+            if pygame.KEYDOWN:
+                if keys[pygame.K_SPACE]:
+                    self.is_jumping = True
+        
+                if keys[pygame.K_r] and self.press_r == False:
+                    if self.is_sprinting == False:
+                        self.speed = self.sprint_speed
+                        self.animation_speed = 0.25
+                
+                        self.is_sprinting = True
+            
+                else:
+                    self.speed = self.sprint_speed /2
+                    self.animation_speed = 0.15
+                    self.is_sprinting = False
+                
+            if self.is_jumping == True:
+                self.pos.y -= self.jump_speed
+                self.jump_speed -= self.gravity
+
+                if self.jump_speed < -self.jump_height and self.pos.y > self.player_y:
+                    self.is_jumping = False
+                    self.jump_speed = self.jump_height
+                    self.pos.y = self.player_y      
         else:
             self.direction.x = 0
-
-        if pygame.KEYDOWN:
-            if keys[pygame.K_SPACE]:
-                self.is_jumping = True
-    
-            if keys[pygame.K_r] and self.press_r == False:
-                if self.is_sprinting == False:
-                    self.speed = self.sprint_speed
-                    self.animation_speed = 0.25
-            
-                    self.is_sprinting = True
-        
-            else:
-                self.speed = self.sprint_speed /2
-                self.animation_speed = 0.15
-                self.is_sprinting = False
-            
-        if self.is_jumping == True:
-            self.pos.y -= self.jump_speed
-            self.jump_speed -= self.gravity
-
-            if self.jump_speed < -self.jump_height and self.pos.y > self.player_y:
-                self.is_jumping = False
-                self.jump_speed = self.jump_height
-                self.pos.y = self.player_y      
-
+            self.direction.y = 0
 
     def get_status(self):
     
@@ -209,6 +214,12 @@ class Player(pygame.sprite.Sprite):
                 else:
                     action = action.replace('_attack','_heal')
 
+            if self.is_player_damaged == True:
+                if self.is_player_attacking == False:
+                    action = '_hurt'
+                else:
+                    action = action.replace('attack','_hurt')
+
         self.status = self.status + action
 
 
@@ -228,6 +239,11 @@ class Player(pygame.sprite.Sprite):
         if self.has_player_collected_health_orb == True: # ----> The reason as to why heal has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the heal animation is played, and then the player goes back to idle or walk animation
             if self.frame_index >= len(animation) - 1:
                 self.has_player_collected_health_orb = False
+                self.frame_index = 0
+
+        if '_hurt' in self.status:
+            if self.frame_index >= len(animation) - 1:
+                self.is_player_damaged = False
                 self.frame_index = 0
 
         self.image = pygame.transform.scale((animation[int(self.frame_index)]),(150,150))
@@ -338,7 +354,8 @@ class Player(pygame.sprite.Sprite):
             if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
                 if 'attack' in enemy.status:
                     if self.hitbox.colliderect(enemy.hitbox): # --> Using self.hitbox causes the related entities to lose damage when there isno collision between them.
-                        self.health_being_updated = self.health_being_updated - 1
+                        self.health_being_updated -= 1
+                        self.is_player_damaged = True
 
 
 
@@ -486,7 +503,8 @@ class Player(pygame.sprite.Sprite):
         self.staying_in_screen()
         self.animate()
         self.player_health()
-        self.attacking_animation_and_sound_effects()
+        if 'heal' not in self.status:
+            self.attacking_animation_and_sound_effects()
         self.animation_of_explosion()
         self.collision_of_blast_with_wall()
     def player_update(self,enemy):

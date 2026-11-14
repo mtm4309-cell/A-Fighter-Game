@@ -213,3 +213,10 @@
                         v) Adding asset validation based on supported file extensions mentioned in support.py
                         vi) Organising asset loading responsibilities into diffirent subroutines, which is more convienient.
                         vii) Normalising file paths before caching to ensure that the cache keys are consistent.
+
+      Date: 14 / 11 / 2026:
+            1) Restricting movement and attack of player if in healing state --> The healing animation of the player uses the player's idle position, and so any movement / attack while healing looks weird. To solve this, a condition has been placed for both the attack and the movement that the player is not in the healing state.
+            2) Finishing design of the sword button for the player [Close-Range attack] [Not yet implemented into the game]
+            3) Limiting the enemy laughing sound effect to when the enemy is NOT attacking --> Improves the coherence of the game, and also makes it less annoying, more work is needed on the enemy laughing sound effect.
+            4) Completing the animation of the player getting hurt and its Implementation --> Under the condition that the enemy is in the 'attack' state, and the two rects are colliding, a boolean variable 'self.is_player_damaged' is set to True, with which the animation is played ONCE, and then the variable is set to False.
+            5) Ensuring that the health orb does not spawn at the same point as the player --> Since the spawn point of the health orb is randomised, it was very likely that the health orb would spawn at the same point as the player, and so the player is suddenly healed, an unfair cheat. To solve this, in the function 'health_orb_update_with_player', a condition has been placed based upon the spawn point of the health orb not being equal to the x coordinate of the player, in which the health orb will then spawn.
