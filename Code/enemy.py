@@ -33,6 +33,7 @@ class Enemy():
         self.hitbox = self.rect.inflate(-400,-350)
 
         self.attack_radius = 60
+        self.kick_attributes = {'Damage': 10,'Knockback': 60, 'Knockback_Multiplier': 0.35}
         self.notice_radius = 320
 
         self.is_kick_sound_played = False

@@ -62,7 +62,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = self.pos) #The picture frame of the player on the screen
 
         self.hitbox = self.rect.inflate(-40,-12) #The physics part of the player where collisions will be detected
-    
+
+        self.knockback_velocity = pygame.math.Vector2()
+
         self.is_jumping = False
         self.jump_height = 40 #---> The reason for changing this value is to ensure that when the player jumps, they don't collide with the enemy and take damage.
         self.jump_speed = self.jump_height
@@ -77,8 +79,8 @@ class Player(pygame.sprite.Sprite):
         self.is_player_damaged = False
         
         # -- Attack related variables -- #
-        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 17, 'Multiplier_for_enemy_knockback': 0.25}
-        self.purple_blast_attributes = {"Damage": 15, "Speed": 25, "Cooldown": 4000, 'Distance_by_which_enemy_goes_back': 47, 'Multiplier_for_enemy_knockback': 0.45}
+        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 40, 'Multiplier_for_enemy_knockback': 0.25}
+        self.purple_blast_attributes = {"Damage": 15, "Speed": 25, "Cooldown": 4000, 'Distance_by_which_enemy_goes_back': 70, 'Multiplier_for_enemy_knockback': 0.45}
         
         self.is_player_attacking = False
         self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
@@ -292,6 +294,12 @@ class Player(pygame.sprite.Sprite):
 
         self.pos += self.direction * speed # Updates the actual positon of player on the screen
 
+        self.pos += self.knockback_velocity # --> This will happen only when the enemy is hit by the blast, 
+        self.knockback_velocity *= 0.8 # --> Creates a deceleration effect, making things look smooth, this works as the self.knockback_velocity is changing when the enemy is hit by the blast.
+        
+        if self.knockback_velocity.length_squared() < 0.01: # --> A threshold to determine when to stop knockback effect.
+            self.knockback_velocity.update(0, 0)
+
     def staying_in_screen(self):
         
         # Checking whether if player is crossing the screen horizontally #
@@ -349,13 +357,32 @@ class Player(pygame.sprite.Sprite):
         else:
             print("Error: status is still not defined on this object!")
 
+        damage = enemy.kick_attributes['Damage']
+        knockback = enemy.kick_attributes['Knockback']
+        knockback_multiplier = enemy.kick_attributes['Knockback_Multiplier']
 
         if self.health_being_updated > 0: # --> In the case that the player is not dead
             if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
                 if 'attack' in enemy.status:
                     if self.hitbox.colliderect(enemy.hitbox): # --> Using self.hitbox causes the related entities to lose damage when there isno collision between them.
-                        self.health_being_updated -= 1
+                        self.health_being_updated -= damage
                         self.is_player_damaged = True
+
+                    # Knockback effect of the player
+                        if self.rect.centerx != enemy.rect.centerx: # --> Knockback effect will only be applied if the enemy and player are not perfectly aligned vertically.
+                            if self.rect.centerx > enemy.rect.centerx: # --> This stops the glitch where the player goes upwards.
+                                    knockback_direction = 1  
+                            else:
+                                knockback_direction = -1
+                        else: # --> If the enemy and player are perfectly aligned vertically, we determine what direction the player should be knocked back based on its current status (facing east or west).
+                            if 'east' in self.status:
+                                knockback_direction = -1
+                            else:
+                                knockback_direction = 1
+                                
+                        self.knockback_velocity.x += knockback_direction * knockback * knockback_multiplier 
+                                # --> By how much the knockback velocity is increased depends on the distance by which the player goes back and the multiplier for player knockback. The multiplier is used to adjust the knockback effect based upon the attributes of the attack.
+                                                           
 
 
 
