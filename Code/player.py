@@ -220,15 +220,15 @@ class Player(pygame.sprite.Sprite):
                 if self.is_player_attacking == False:
                     action = '_hurt'
                 else:
-                    action = action.replace('attack','_hurt')
+                    action = action.replace('_attack','_hurt')
 
         self.status = self.status + action
 
 
     def animate(self):
         animation = self.animations[self.status]
-
         self.frame_index += self.animation_speed
+        
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
@@ -364,7 +364,7 @@ class Player(pygame.sprite.Sprite):
         if self.health_being_updated > 0: # --> In the case that the player is not dead
             if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
                 if 'attack' in enemy.status:
-                    if self.hitbox.colliderect(enemy.hitbox): # --> Using self.hitbox causes the related entities to lose damage when there isno collision between them.
+                    if self.hitbox.colliderect(enemy.hitbox) and not self.is_player_damaged: # --> Prevents repeat damage during the hurt animation.
                         self.health_being_updated -= damage
                         self.is_player_damaged = True
 

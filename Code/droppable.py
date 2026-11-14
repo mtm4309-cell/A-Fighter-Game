@@ -119,7 +119,7 @@ class Droppable():
 
     def health_orb_update_with_player(self,player):
 
-        if self.point_at_which_health_orb_will_spawn != player.player_x:
+        if self.point_at_which_health_orb_will_spawn != player.player_x or self.point_at_which_health_orb_will_spawn == (player.player_x - 200) or self.point_at_which_health_orb_will_spawn == (player.player_x + 200) :
             current_health = player.health_being_updated
             if self.last_player_health is None:
                 self.last_player_health = current_health
