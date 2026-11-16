@@ -98,7 +98,7 @@ class Droppable():
         return False
         
     def give_player_health_boost(self,player):
-        if player.health_being_updated < 100 and player.health_being_updated > 30:
+        if (player.health_being_updated < 100 ) and self.frame_index >=8 : # The self.frame_index condition is placed as the animation of the health orb is complete by around the 8th frame, whereas the frames before is the animation to bring forth the health orb.
             player.health_being_updated += self.health_orb_attributes['Health Boost']
             player.player_heal.play()
             if player.health_being_updated > 100:                
