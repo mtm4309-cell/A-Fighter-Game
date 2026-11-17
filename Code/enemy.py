@@ -18,7 +18,7 @@ class Enemy():
         self.animation_speed = 0.15
 
         self.enemy_health = 100
-        self.has_been_hit_by_blast = False
+        self.has_been_hit = False
         self.knockback_velocity = pygame.math.Vector2() # --> Initially a zero vector
 
         # [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
@@ -99,7 +99,7 @@ class Enemy():
             state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
 
-        if self.has_been_hit_by_blast == True: # --> If the enemy has been hit by the blast, it will enter the hurt state, regardless of whether the player is within the notice or attack radius.
+        if self.has_been_hit == True: # --> If the enemy has been hit, it will enter the hurt state regardless of its distance from the player.
             state = '_hurt'
             self.direction = pygame.math.Vector2(0, 0) # --> The enemy will not move towards the player when it is hurt by the blast, it will only be knocked back by the blast.
             self.animation_speed = 0.20
@@ -143,6 +143,10 @@ class Enemy():
         if self.frame_index >= len(animations):
             self.frame_index = 0
             self.is_kick_sound_played = False # ---> This ensures that the sound effect will only play once per attack animation, and not multiple times during the same animation cycle
+
+        if 'hurt' in self.status and self.frame_index >= len(animations) - 1: # --> Checks for when one loop of the hurt animation is played so that the hurting animation stops.
+            self.has_been_hit = False
+            self.animation_speed = 0.15
 
         if 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
             if int(self.frame_index) == 5 and self.is_kick_sound_played == False: # ---> The self frame index at which the sound is playeed has changed from '2' to '5' so that the sound effect is played at the point of contact between the kick and the player.
@@ -191,9 +195,9 @@ class Enemy():
     def enemy_get_hurt_by_blast(self,player):
         # Detect the collision as soon as the blast overlaps the enemy.
         if player.collision_of_blast_with_enemy(self):
-            if self.has_been_hit_by_blast:
+            if self.has_been_hit:
                 return
-            self.has_been_hit_by_blast = True
+            self.has_been_hit = True
                    
             if player.blast_type == "blue_blast":
                 damage = player.blue_blast_attributes["Damage"]
@@ -225,10 +229,35 @@ class Enemy():
                 
             print(f"Enemy health after blast: {self.enemy_health}")
             self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
-        else:
-            if self.frame_index >= len(self.animations[self.status]) - 1: # --> Ensures only ONE loop of the hurt animation is played, then everything is set to fakse.
-                self.has_been_hit_by_blast = False
-                self.animation_speed = 0.15  # Reset the animation speed to its original value after the hurt animation is complete
+
+    def enemy_hurt_by_sword(self,player):
+        damage = player.sword_attributes['Damage']
+        knockback = player.sword_attributes['Distance_by_which_enemy_goes_back']
+        knockback_multipler = player.sword_attributes['Multiplier_for_enemy_knockback']
+
+        if player.sword_attack(self):
+            if self.has_been_hit:
+                return  
+            self.has_been_hit = True
+
+            if self.rect.centerx != player.rect.centerx: # --> Knockback effect will only be applied if the enemy and player are not perfectly aligned vertically.
+                if self.rect.centerx > player.rect.centerx: # --> This stops the glitch where the enemy goes upwards.
+                    knockback_direction = 1  
+                else:
+                    knockback_direction = -1
+            else: # --> If the enemy and player are perfectly aligned vertically, we determine what direction the enemy should be knocked back based on its current status (facing east or west).
+                if 'east' in self.status:
+                    knockback_direction = -1
+                else:
+                    knockback_direction = 1
+            
+            self.knockback_velocity.x += knockback_direction * knockback *knockback_multipler
+            # --> By how much the knockback velocity is increased depends on the distance by which the enemy goes back and the multiplier for enemy knockback. The multiplier is used to adjust the knockback effect based on the blast type.
+                
+            self.enemy_health = self.enemy_health - damage
+                
+            print(f"Enemy health after blast: {self.enemy_health}")
+            self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
 
     def enemy_stay_within_screen_boundaries(self):
         # Useful especially when the enemy is hit by the blast and is knocked back, to ensure it doesn't go off-screen.
@@ -253,3 +282,4 @@ class Enemy():
         self.get_status(player)
         self.get_actions(player)
         self.enemy_get_hurt_by_blast(player) 
+        self.enemy_hurt_by_sword(player)

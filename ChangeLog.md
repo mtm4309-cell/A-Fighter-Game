@@ -226,3 +226,12 @@
       Date: 16 / 11 / 2026:
             1) Used PixelLab's Character Generator to create the sword attack animation of the player, for both east and west. Implementation into the player's attack system is yet to be done. [Animating characters is not my strong point]
             2) Limiting when the player can collect the health orb and heal based on the frame index of the health orb, this is to ensure that the necessary animation of the health orb is complete, before the player can heal from it.
+
+      Date: 17 / 11 / 2026:
+            1) Changing all previously present attack variables to relate to the blast attacks themselves, this was done as to seperate the processes of the blast attacks and the sword attacks, making the coding process much more convenient.
+            2) The sword buttons have been put into the program and is displayed at the top right of the screen.
+            3) Integretion of the player sword attack animation for both directions into the program, and what occured is as follows:
+                  i) A problem that I encountered was that when the sword attack button (Z) was pressed, the animation would not play except if the enemy was in proximity of the player.
+                  ii) Sword damage will be checked at frame 5, so when the two hitboxes are colliding and the sword attack animation is in its fifth frame, the damage onto the enemy will be registered.
+                  iii) Files are now loaded in filename order, so that frame consistenly match numbered files.
+                  iv) The blast and sword attacks use the same 'self.has_been_hit' flag in the Enemy class, which now resets whenever the hurt animation finishes, rather than dealing with them seperately.

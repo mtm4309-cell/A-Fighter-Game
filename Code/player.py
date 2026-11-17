@@ -2,12 +2,11 @@ import pygame , time
 from support import import_folder, load_image, load_sound
 import droppable
 class Player(pygame.sprite.Sprite):
-    def __init__(self, health, speed, attack_dmg, level, screen):
+    def __init__(self, health, speed, level, screen):
     
     # --- START OF STATS --- #  
         self.health = health
         self.speed = speed
-        self.attack_dmg = attack_dmg
         self.level = level
         
     # --- END OF STATS --- #
@@ -37,6 +36,10 @@ class Player(pygame.sprite.Sprite):
         self.purple_blast_button_not_selected = pygame.transform.scale(load_image("UI related/BUTTONS/purple_blast_button_not_selected.png"), (100,100))
         self.purple_blast_button_selected = pygame.transform.scale(load_image("UI related/BUTTONS/purple_blast_button_selected.png"), (100,100))
         self.purple_blast_explosion_sound_effect = load_sound("Sound Effects/purple_blast_explosion.mp3")
+
+        self.sword_button_not_selected = pygame.transform.scale(load_image("UI related/BUTTONS/sword_button_not_selected.png"), (100,100))
+        self.sword_button_selected = pygame.transform.scale(load_image("UI related/BUTTONS/sword_button_selected.png"), (100,100))
+        self.sword_strike = load_sound("Sound Effects/sword_strike.mp3")
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
@@ -79,20 +82,21 @@ class Player(pygame.sprite.Sprite):
         self.is_player_damaged = False
         
         # -- Attack related variables -- #
-        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 40, 'Multiplier_for_enemy_knockback': 0.25}
+        self.blue_blast_attributes = {"Damage": 10, "Speed": 15, "Cooldown": 2500, 'Distance_by_which_enemy_goes_back': 55, 'Multiplier_for_enemy_knockback': 0.25}
         self.purple_blast_attributes = {"Damage": 15, "Speed": 25, "Cooldown": 4000, 'Distance_by_which_enemy_goes_back': 70, 'Multiplier_for_enemy_knockback': 0.45}
+        self.sword_attributes = {"Damage": 6, 'Distance_by_which_enemy_goes_back':40, 'Multiplier_for_enemy_knockback': 0.20}
         
-        self.is_player_attacking = False
-        self.is_blue_blast_selected = False #--- > Will Later help us to see which attack the player selects, and then playing its respective animation and sound effect.
+        self.is_player_blast_attacking = False
+        self.is_blue_blast_selected = False #--- > Will Later help us to see which blast attack the player selects, and then playing its respective animation and sound effect.
         self.is_purple_blast_selected = False 
         self.is_blast_released = False
         self.last_blast_time = 0 # --> Assigned later
         self.blast_cooldown = 0 # --> Assigned later
         self.blast_velocity = 0 # --> Assigned later
-        self.attack_key_was_down = False
+        self.blast_key_was_down = False
 
-        self.attack_frame_index = 0
-        self.attack_animation_speed = 0.10
+        self.blast_frame_index = 0
+        self.blast_animation_speed = 0.10
         self.blast_x = self.player_x
         self.blast_y = self.player_y
         self.blast_facing_right = True
@@ -106,6 +110,10 @@ class Player(pygame.sprite.Sprite):
 
         self.blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150)
 
+        self.is_sword_selected = False # --> Checks if button was pressed
+        self.sword_key_was_down = False 
+        self.sword_hit_frame = 5 # --> The frame at which damage to enemy is registered.
+        self.sword_hit_registered = False # --> Helps to register damage onto enemy
 
     # --- END OF PLAYER MOVEMENT --- #
 
@@ -127,19 +135,20 @@ class Player(pygame.sprite.Sprite):
                            'east_idle': [], 'west_idle':[], 
                            'east_death': [], 'west_death': [],
                            'east_attack':[], 'west_attack':[],
+                           'east_sword_attack':[], 'west_sword_attack':[],
                            'east_heal': [], 'west_heal': [],
                            'east_hurt': [], 'west_hurt': []}
 
-        self.attack_animations = {'blue_blast': [], 'blue_blast_explosion': [], 
-                                  'purple_blast': [], 'purple_blast_explosion': []}
+        self.blast_animations = {'blue_blast': [], 'blue_blast_explosion': [],
+                                 'purple_blast': [], 'purple_blast_explosion': []}
 
         for animation in self.animations.keys():
             full_path_1 = character_path + animation
             self.animations[animation] = import_folder(full_path_1)
 
-        for attack_animation in self.attack_animations.keys():
-            full_path_2 = character_path + attack_animation
-            self.attack_animations[attack_animation] = import_folder(full_path_2)
+        for blast_animation_name in self.blast_animations.keys():
+            full_path_2 = character_path + blast_animation_name
+            self.blast_animations[blast_animation_name] = import_folder(full_path_2)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -199,25 +208,31 @@ class Player(pygame.sprite.Sprite):
         else:
 
             if self.direction.x == 0 and self.direction.y == 0:
-                if self.is_player_attacking == False:
+                if self.is_player_blast_attacking == False:
                     action = '_idle'
-                elif self.is_player_attacking == True:
+                elif self.is_player_blast_attacking == True:
                     action  = action.replace('_attack','_idle')
             
-            if self.is_player_attacking == True: # ----> The animation for attack 1) will be played only when the player is moving 2) The code for the animation is in the animate() function
+            if self.is_player_blast_attacking == True: # ----> The animation for attack 1) will be played only when the player is moving 2) The code for the animation is in the animate() function
                 if 'idle' in action:
                     action = action.replace('_idle','_attack')
                 else:
                     action = '_attack'
 
+            if self.is_sword_selected == True:
+                if 'idle' in action:
+                    action = action.replace('_idle', '_sword_attack')
+                else:
+                    action = '_sword_attack'
+
             if self.has_player_collected_health_orb == True:
-                if self.is_player_attacking == False:
+                if self.is_player_blast_attacking == False:
                     action = '_heal'
                 else:
                     action = action.replace('_attack','_heal')
 
             if self.is_player_damaged == True:
-                if self.is_player_attacking == False:
+                if self.is_player_blast_attacking == False:
                     action = '_hurt'
                 else:
                     action = action.replace('_attack','_hurt')
@@ -228,14 +243,19 @@ class Player(pygame.sprite.Sprite):
     def animate(self):
         animation = self.animations[self.status]
         self.frame_index += self.animation_speed
+
+        if self.is_sword_selected and 'sword_attack' in self.status:
+            if self.frame_index >= len(animation) - 1:
+                self.is_sword_selected = False
+                self.frame_index = 0
         
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
 
-        if self.is_player_attacking == True:  # ----> The reason as to why attack has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the attack animation is played, and then the player goes back to idle or walk animation
+        if self.is_player_blast_attacking == True:  # ----> The reason as to why attack has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the attack animation is played, and then the player goes back to idle or walk animation
             if self.frame_index >= len(animation) - 1:
-                self.is_player_attacking = False
+                self.is_player_blast_attacking = False
                 self.frame_index = 0
 
         if self.has_player_collected_health_orb == True: # ----> The reason as to why heal has its own animation is to ensure that the animation is not continuous, rather only one cycle is of the heal animation is played, and then the player goes back to idle or walk animation
@@ -262,7 +282,7 @@ class Player(pygame.sprite.Sprite):
       
         ## -- Instead of using fixed coordinates making it hard for the game to player on other laptops, we will be making calculations using the width of the screen -- ##
         
-        ui_start_x = self.MAX_WIDTH - 300
+        ui_start_x = self.MAX_WIDTH - 400
 
         if self.is_sprinting == True:
             #pygame.draw.rect(self.screen, "green", self.rect, 2)   # The full sprite size
@@ -283,6 +303,11 @@ class Player(pygame.sprite.Sprite):
         else:
             self.screen.blit(self.purple_blast_button_selected, (ui_start_x + 200,50))
        
+        if self.is_sword_selected == False: # Drawing the sword buttons onto the screen.
+            self.screen.blit(self.sword_button_not_selected, (ui_start_x + 300,50))
+        else:
+            self.screen.blit(self.sword_button_selected, (ui_start_x + 300,50))
+
     
         pygame.draw.rect(self.screen, "red", self.hitbox, 2)  # The actual collision area
         
@@ -383,10 +408,7 @@ class Player(pygame.sprite.Sprite):
                         self.knockback_velocity.x += knockback_direction * knockback * knockback_multiplier 
                                 # --> By how much the knockback velocity is increased depends on the distance by which the player goes back and the multiplier for player knockback. The multiplier is used to adjust the knockback effect based upon the attributes of the attack.
                                                            
-
-
-
-    def attacking_animation_and_sound_effects(self):
+    def blast_animation_and_sound_effects(self):
         # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
         # Blue Blast button --> E, Purple Blast button --> F
         current_time = pygame.time.get_ticks()
@@ -401,23 +423,23 @@ class Player(pygame.sprite.Sprite):
             self.is_blue_blast_selected = False
 
         # --> Using boolean variables as a condition is much easier than relying on nested if statements.
-        attack_key_down = keys[pygame.K_q]
-        attack_key_pressed = attack_key_down and not self.attack_key_was_down
-        self.attack_key_was_down = attack_key_down
+        blast_key_down = keys[pygame.K_q]
+        blast_key_pressed = blast_key_down and not self.blast_key_was_down
+        self.blast_key_was_down = blast_key_down
 
-        if attack_key_pressed:
+        if blast_key_pressed:
 
             if self.is_blue_blast_selected == False and self.is_purple_blast_selected == False: # --> Player pressing attack button without selecting any attack, will be prompted to select an attack first.
-                self.is_player_attacking = False
+                self.is_player_blast_attacking = False
                 
-                self.select_attack_text = self.level_font.render(f"Select an attack first!", False, "red")
-                self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
+                self.blast_status_text = self.level_font.render(f"Select an attack first!", False, "red")
+                self.screen.blit(self.blast_status_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
-            elif (not self.is_player_attacking and not self.is_blast_released and current_time - self.last_blast_time >= self.blast_cooldown):
-                self.is_player_attacking = True
+            elif (not self.is_player_blast_attacking and not self.is_blast_released and current_time - self.last_blast_time >= self.blast_cooldown):
+                self.is_player_blast_attacking = True
                 self.is_blast_released = True
                 self.last_blast_time = current_time
-                self.attack_frame_index = 0
+                self.blast_frame_index = 0
                 self.blast_x = self.pos.x
                 self.blast_y = self.pos.y
                 self.blast_direction = 1 if self.blast_facing_right else -1
@@ -432,8 +454,8 @@ class Player(pygame.sprite.Sprite):
                 else:
                     pygame.mixer.Channel(2).play(self.purple_blast)
             else:
-                self.select_attack_text = self.level_font.render("Blast is on cooldown!", False, "red")
-                self.screen.blit(self.select_attack_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
+                self.blast_status_text = self.level_font.render("Blast is on cooldown!", False, "red")
+                self.screen.blit(self.blast_status_text, ((self.MAX_WIDTH/2.5),(self.MAX_HEIGHT/3.5)))
 
         if self.last_blast_time > 0 and self.blast_cooldown > 0:
             cooldown_remaining = max(0, (self.blast_cooldown - (current_time - self.last_blast_time)) / 1000) # Getting the remaining cooldown time in seconds
@@ -443,12 +465,12 @@ class Player(pygame.sprite.Sprite):
         
         
         if self.is_blast_released:
-            attack_animation = self.attack_animations.get(self.blast_type, [])
-            if not attack_animation:
+            blast_animation = self.blast_animations.get(self.blast_type, [])
+            if not blast_animation:
                 self.is_blast_released = False
                 return
 
-            self.attack_frame_index = (self.attack_frame_index + self.attack_animation_speed) % len(attack_animation)
+            self.blast_frame_index = (self.blast_frame_index + self.blast_animation_speed) % len(blast_animation)
             self.blast_x += self.blast_velocity * self.blast_direction
 
             # Stop the blast once it has completely left the screen.
@@ -457,11 +479,11 @@ class Player(pygame.sprite.Sprite):
                 self.is_blast_released = False
                 return
 
-            self.attack_image = pygame.transform.scale(
-                attack_animation[int(self.attack_frame_index)], (150, 150))
+            self.blast_image = pygame.transform.scale(
+                blast_animation[int(self.blast_frame_index)], (150, 150))
             if self.blast_direction == 1:
-                self.attack_image = pygame.transform.flip(self.attack_image, True, False)
-            self.screen.blit(self.attack_image, (self.blast_x, self.blast_y))
+                self.blast_image = pygame.transform.flip(self.blast_image, True, False)
+            self.screen.blit(self.blast_image, (self.blast_x, self.blast_y))
       
     def collision_of_blast_with_enemy(self, enemy):
         if not self.is_blast_released: # The explosion can never occur if the blast is not released.
@@ -501,7 +523,7 @@ class Player(pygame.sprite.Sprite):
         if not self.is_explosion_active:
             return
 
-        explosion_animation = self.attack_animations.get(f"{self.blast_type}_explosion", []) # --> Importing the relevant files for the explosion anmation of their respective blast type
+        explosion_animation = self.blast_animations.get(f"{self.blast_type}_explosion", []) # --> Importing the relevant files for the explosion anmation of their respective blast type
         if not explosion_animation: # --> In case there are no animation files for the explosion animation, the explosion will not be played
             self.is_explosion_active = False
             return
@@ -520,8 +542,31 @@ class Player(pygame.sprite.Sprite):
             self.is_explosion_active = False
             self.explosion_frame_index = 0 # --> Helpful for the next time the animation is played as it will start from the beginning.
 
-    
-    
+    def sword_attack(self,enemy): 
+        keys = pygame.key.get_pressed()
+
+        sword_key_down = keys[pygame.K_z]
+        sword_key_pressed = sword_key_down and not self.sword_key_was_down
+        self.sword_key_was_down = sword_key_down
+
+        if sword_key_pressed and not self.is_sword_selected: # --> In case the sword button was already selected, so that no repeating sword attack / animations is played.  
+            self.is_sword_selected = True
+            self.frame_index = 0
+            self.sword_hit_registered = False
+            self.sword_strike.play()
+
+        if (self.is_sword_selected and 'sword_attack' in self.status
+                and not self.sword_hit_registered 
+                and int(self.frame_index) == self.sword_hit_frame
+                and self.hitbox.colliderect(enemy.hitbox)):
+            
+            self.sword_hit_registered = True # So now damage will be given to the enemy.
+        
+            return True
+        # The return statements will be directed towards the enemy subroutine 'enemy_hurt_by_sword()'
+        return False
+
+
     def update(self):
         self.clock.tick(60)
         self.input()
@@ -531,7 +576,7 @@ class Player(pygame.sprite.Sprite):
         self.animate()
         self.player_health()
         if 'heal' not in self.status:
-            self.attacking_animation_and_sound_effects()
+            self.blast_animation_and_sound_effects()
         self.animation_of_explosion()
         self.collision_of_blast_with_wall()
     def player_update(self,enemy):

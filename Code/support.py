@@ -77,7 +77,7 @@ def import_folder(path): # This function imports all image files from a specifie
     surface_list = []
     
     for _,__,img_file in walk(path):
-        for image in img_file:
+        for image in sorted(img_file):
             full_path = os.path.join(path, image)
             image_surf = load_image(full_path)
             surface_list.append(image_surf)

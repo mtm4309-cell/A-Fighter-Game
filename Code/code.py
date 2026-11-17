@@ -102,7 +102,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
     arena_bigger = pygame.transform.scale(arena, (WIDTH,HEIGHT))
     WIN.blit(arena_bigger, (0,0))
     pygame.display.flip()
-    me = Player(100,5,100,1,WIN)
+    me = Player(100,5,1,WIN)
 
     enemy_1 = Enemy(100,100,5,5,WIN)
     health_orb = Droppable(WIN)
