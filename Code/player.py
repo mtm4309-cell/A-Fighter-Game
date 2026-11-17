@@ -112,7 +112,7 @@ class Player(pygame.sprite.Sprite):
 
         self.is_sword_selected = False # --> Checks if button was pressed
         self.sword_key_was_down = False 
-        self.sword_hit_frame = 5 # --> The frame at which damage to enemy is registered.
+        self.sword_hit_frame = 4 # --> The frame at which damage to enemy is registered.
         self.sword_hit_registered = False # --> Helps to register damage onto enemy
 
     # --- END OF PLAYER MOVEMENT --- #

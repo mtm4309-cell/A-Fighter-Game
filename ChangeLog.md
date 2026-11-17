@@ -232,6 +232,6 @@
             2) The sword buttons have been put into the program and is displayed at the top right of the screen.
             3) Integretion of the player sword attack animation for both directions into the program, and what occured is as follows:
                   i) A problem that I encountered was that when the sword attack button (Z) was pressed, the animation would not play except if the enemy was in proximity of the player.
-                  ii) Sword damage will be checked at frame 5, so when the two hitboxes are colliding and the sword attack animation is in its fifth frame, the damage onto the enemy will be registered.
+                  ii) Sword damage will be checked at the fourth frame, so when the two hitboxes are colliding and the sword attack animation is in its fourth frame, the damage onto the enemy will be registered.
                   iii) Files are now loaded in filename order, so that frame consistenly match numbered files.
                   iv) The blast and sword attacks use the same 'self.has_been_hit' flag in the Enemy class, which now resets whenever the hurt animation finishes, rather than dealing with them seperately.
