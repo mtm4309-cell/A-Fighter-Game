@@ -238,3 +238,4 @@
 
       Date: 18 / 11/ 2026:
             1) Changing the animation speed for the sword attack from 0.15 to 0.25, this was done for the animation to be smoother, and to make the game more fast paced, which makes the player more engaged with the game.
+            2) Limiting movement of player when in sword attack state --> The animation for the player in that case is based upon the idle position, and so for a more coherent look, no movement is allowed when the sword attacking animation is played.

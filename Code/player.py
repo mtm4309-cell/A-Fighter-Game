@@ -153,7 +153,7 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if not 'heal' in self.status: # --> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
+        if (not 'heal' in self.status) and (not '_sword_attack' in self.status): # --> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 self.direction.x = 1
                 self.status = 'east'
