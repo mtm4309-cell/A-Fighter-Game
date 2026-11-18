@@ -52,8 +52,8 @@ class Enemy():
     def import_enemy_assets(self):
         enemy_path = "Sprites/enemy_sprite/"
 
-        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 
-                           'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': []}
+        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 'east_scythe_attack' : [], 
+                           'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': [], 'west_scythe_attack' : []}
 
         for animation in self.animations.keys():
             full_path = enemy_path + animation
