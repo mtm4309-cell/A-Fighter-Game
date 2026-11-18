@@ -235,3 +235,6 @@
                   ii) Sword damage will be checked at the fourth frame, so when the two hitboxes are colliding and the sword attack animation is in its fourth frame, the damage onto the enemy will be registered.
                   iii) Files are now loaded in filename order, so that frame consistenly match numbered files.
                   iv) The blast and sword attacks use the same 'self.has_been_hit' flag in the Enemy class, which now resets whenever the hurt animation finishes, rather than dealing with them seperately.
+
+      Date: 18 / 11/ 2026:
+            1) Changing the animation speed for the sword attack from 0.15 to 0.25, this was done for the animation to be smoother, and to make the game more fast paced, which makes the player more engaged with the game.

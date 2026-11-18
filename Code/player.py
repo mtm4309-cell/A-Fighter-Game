@@ -241,6 +241,11 @@ class Player(pygame.sprite.Sprite):
 
 
     def animate(self):
+        if '_sword_attack' in self.status:
+            self.animation_speed = 0.25
+        else:
+            self.animation_speed = 0.15
+        
         animation = self.animations[self.status]
         self.frame_index += self.animation_speed
 
