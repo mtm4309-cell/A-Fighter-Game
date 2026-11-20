@@ -236,7 +236,11 @@
                   iii) Files are now loaded in filename order, so that frame consistenly match numbered files.
                   iv) The blast and sword attacks use the same 'self.has_been_hit' flag in the Enemy class, which now resets whenever the hurt animation finishes, rather than dealing with them seperately.
 
-      Date: 18 / 11/ 2026:
+      Date: 18 / 11 / 2026:
             1) Changing the animation speed for the sword attack from 0.15 to 0.25, this was done for the animation to be smoother, and to make the game more fast paced, which makes the player more engaged with the game.
             2) Limiting movement of player when in sword attack state --> The animation for the player in that case is based upon the idle position, and so for a more coherent look, no movement is allowed when the sword attacking animation is played.
             3) Used PixelLab's Character Generator for the animation of the enemy throwing the scythe for both directions, east and west.
+
+      Date: 20 / 11 / 2026:
+            1) Displaying the health gained by the player --> This was done by first generating the text, which just displays the health to be gained of the health orb, then we check whether if the variable player.has_player_collected_health_orb is True, by then the text is displayed for as long as the player is in the healing state, the current display of the text is simple and vanishes once the animation is done. More work could be done to make it look more smoother
+            2) Changing point of collision between player and health orb --> Instead of using a rect style arguement for the collisions, which often times leads to the player getting healed eventhough they visibly do not meet. To fix this, I used a point style arguement by using .collidepoint(), which ensures that the player rect collides with the CENTRE of the health orb, causing a more accurate healing detection.s

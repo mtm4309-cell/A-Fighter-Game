@@ -22,6 +22,7 @@ class Droppable():
         self.animation_speed = 0.15
         self.is_health_orb_collected = False
         self.last_player_health = None
+        self.health_gain_text = None
 
         # [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
         
@@ -92,7 +93,7 @@ class Droppable():
             remaining_duration = max(0, self.duration_for_health_orb_to_remain - elapsed) # Gives the player how much time remains to collect health orb
             duration_text = self.font.render(f"{remaining_duration / 1000:.1f}s", True, (255, 255, 255))
             self.screen.blit(duration_text, (self.health_rect.x + 50, self.health_rect.y - 50)) # Display the remaining time.
-            if not self.is_health_orb_collected and player.rect.colliderect(self.health_rect):
+            if not self.is_health_orb_collected and player.rect.collidepoint(self.health_rect.center): # Ensures a more accurate health orb colliding detection.
                 return True
 
         return False
@@ -101,12 +102,14 @@ class Droppable():
         if (player.health_being_updated < 100 ) and self.frame_index >=8 : # The self.frame_index condition is placed as the animation of the health orb is complete by around the 8th frame, whereas the frames before is the animation to bring forth the health orb.
             player.health_being_updated += self.health_orb_attributes['Health Boost']
             player.player_heal.play()
+
+            player.has_player_collected_health_orb = True
+            self.health_gain_text = player.level_font.render(f"{self.health_orb_attributes['Health Boost']}", False, "#48ba79") # Text to be displayed
+
             if player.health_being_updated > 100:                
                 player.health_being_updated = 100
 
-
             self.is_health_orb_collected = True
-            player.has_player_collected_health_orb = True
             self.frame_index = 0
 
         print(f"Player health after collecting health orb: {player.health_being_updated}")        
@@ -118,6 +121,10 @@ class Droppable():
         self.frame_index = 0
 
     def health_orb_update_with_player(self,player):
+        pygame.draw.rect(self.screen ,'green',self.health_rect ,2) # For debugging
+        
+        if player.has_player_collected_health_orb and self.health_gain_text is not None: # Text is displayed here, where it is not limited by irrelevant conditions.
+            self.screen.blit(self.health_gain_text,(player.rect.x,player.rect.y - 30))
 
         if self.point_at_which_health_orb_will_spawn != player.player_x or self.point_at_which_health_orb_will_spawn == (player.player_x - 200) or self.point_at_which_health_orb_will_spawn == (player.player_x + 200) :
             current_health = player.health_being_updated
