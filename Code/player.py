@@ -379,6 +379,8 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.rect(self.screen, (120, 120, 125), border_rect, 2) # ---> Tarnished Steel Grey Color
 
     def player_damage_health(self, enemy):
+        enemy.update_scythe_projectile(self.hitbox.center) # --> To update the scythe's target as the player moves.
+
         # Enemy status must be in attack
         
         if hasattr(enemy, 'status'): # --> Necessary for debugging
@@ -391,9 +393,14 @@ class Player(pygame.sprite.Sprite):
         knockback = enemy.kick_attributes['Knockback']
         knockback_multiplier = enemy.kick_attributes['Knockback_Multiplier']
 
+        scythe_damage = enemy.scythe_attributes['Damage']
+        scythe_knockback = enemy.scythe_attributes['Knockback']
+        scythe_knockback_multiplier = enemy.scythe_attributes['Knockback_Multiplier']
+
+
         if self.health_being_updated > 0: # --> In the case that the player is not dead
             if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
-                if 'attack' in enemy.status:
+                if 'attack' in enemy.status and 'scythe_attack' not in enemy.status: # Only considers the kicking animation
                     if self.hitbox.colliderect(enemy.hitbox) and not self.is_player_damaged: # --> Prevents repeat damage during the hurt animation.
                         self.health_being_updated -= damage
                         self.is_player_damaged = True
@@ -413,6 +420,22 @@ class Player(pygame.sprite.Sprite):
                         self.knockback_velocity.x += knockback_direction * knockback * knockback_multiplier 
                                 # --> By how much the knockback velocity is increased depends on the distance by which the player goes back and the multiplier for player knockback. The multiplier is used to adjust the knockback effect based upon the attributes of the attack.
                                                            
+        if enemy.scythe_in_flight and self.hitbox.colliderect(enemy.scythe_rect): # Now we consider the scythe attack of the enemy.
+            enemy.scythe_in_flight = False
+            if self.health_being_updated > 0 and not self.is_player_damaged:
+                self.health_being_updated -= scythe_damage
+                self.is_player_damaged = True
+                # Knockback effect of the player
+               
+                if self.rect.centerx > enemy.rect.centerx: # --> This stops the glitch where the player goes upwards.
+                    knockback_direction = 1  
+                else:
+                    knockback_direction = -1
+
+                # We don't need to consider when both rects are alligned, as the scythe attack wouldn't be activated at that point
+                
+                self.knockback_velocity.x += ( knockback_direction *scythe_knockback * scythe_knockback_multiplier)
+
     def blast_animation_and_sound_effects(self):
         # The intent with this subroutine is to handle which attack the player selects, playing its corresponding animation and also its sound effect
         # Blue Blast button --> E, Purple Blast button --> F

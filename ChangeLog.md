@@ -244,3 +244,16 @@
       Date: 20 / 11 / 2026:
             1) Displaying the health gained by the player --> This was done by first generating the text, which just displays the health to be gained of the health orb, then we check whether if the variable player.has_player_collected_health_orb is True, by then the text is displayed for as long as the player is in the healing state, the current display of the text is simple and vanishes once the animation is done. More work could be done to make it look more smoother
             2) Changing point of collision between player and health orb --> Instead of using a rect style arguement for the collisions, which often times leads to the player getting healed eventhough they visibly do not meet. To fix this, I used a point style arguement by using .collidepoint(), which ensures that the player rect collides with the CENTRE of the health orb, causing a more accurate healing detection.s
+
+      Date: 22 / 11 / 2026:
+            1) Changing position limits for which health orb can spawn, so that the health orb is not too close to the player
+            2) Completing the animation of the scythe projectile, which has 8 frames.
+            3) Fixing the animation of the enemy scythe attack, making sure it is adequately sized.
+            4) Implementing the enemy scythe attack, which is as follows:
+                  i) Set and adjusted the enemy's notice, scythe, and kick radii.
+                  ii) Set up the vectors used to determine the scythe's starting and target positions.
+                  iii) Added a 50/50 chance for the enemy to enter the scythe attack or walk state when it is within the relevant radius.
+                  iv) Updated the relevant vectors when the enemy enters the scythe attack state.
+                  v) Added scythe movement progress, giving the projectile an arc-like trajectory.
+                  vi) Added rendering for the scythe projectile.
+                  vii) Added player damage registration for scythe collisions in the Player class.

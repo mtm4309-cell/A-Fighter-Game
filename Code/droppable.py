@@ -126,7 +126,7 @@ class Droppable():
         if player.has_player_collected_health_orb and self.health_gain_text is not None: # Text is displayed here, where it is not limited by irrelevant conditions.
             self.screen.blit(self.health_gain_text,(player.rect.x,player.rect.y - 30))
 
-        if self.point_at_which_health_orb_will_spawn != player.player_x or self.point_at_which_health_orb_will_spawn == (player.player_x - 200) or self.point_at_which_health_orb_will_spawn == (player.player_x + 200) :
+        if self.point_at_which_health_orb_will_spawn != player.player_x or self.point_at_which_health_orb_will_spawn == (player.player_x -500) or self.point_at_which_health_orb_will_spawn == (player.player_x + 500) :
             current_health = player.health_being_updated
             if self.last_player_health is None:
                 self.last_player_health = current_health

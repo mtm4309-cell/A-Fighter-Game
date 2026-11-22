@@ -1,3 +1,4 @@
+import math
 import pygame, random
 from support import import_folder, load_image, load_sound
 from player import Player
@@ -32,11 +33,26 @@ class Enemy():
         self.rect = self.image.get_rect(topleft=self.pos)
         self.hitbox = self.rect.inflate(-400,-350)
 
-        self.attack_radius = 60
+        self.attack_radius = 60 # Kicking animation is played here
+        self.scythe_radius = 400  # For the scythe to be thrown
         self.kick_attributes = {'Damage': 10,'Knockback': 60, 'Knockback_Multiplier': 0.35}
-        self.notice_radius = 320
+        self.scythe_attributes = {'Damage': 15, 'Knockback': 45, 'Knockback_Multiplier': 0.3}
+        self.notice_radius = 700 # --> Enemy would start moving immediately, and gives the game a more active feel
 
         self.is_kick_sound_played = False
+        self.scythe_attack_cooldown = 2000
+        self.last_scythe_attack_time = pygame.time.get_ticks() - self.scythe_attack_cooldown # To give some time between subsequent attacks
+        self.is_scythe_attacking = False # For the enemy
+        self.scythe_was_thrown = False # For damage registration onto player
+        self.scythe_target_at_launch = pygame.math.Vector2() # A vector quantity, which is set towards the player
+        self.scythe_in_flight = False
+        self.scythe_start_position = pygame.math.Vector2() # This would be where the enemy is
+        self.scythe_target_position = pygame.math.Vector2() # Where the player is
+        self.scythe_direction = pygame.math.Vector2()  # Calculated when the scythe is thrown
+        self.scythe_started_at = 0
+        self.scythe_flight_duration = 0
+        self.scythe_frame_index = 0
+        self.scythe_rect = pygame.Rect(0, 0, 54, 54)
 
     # --- START OF ASSETS --- # 
         self.kick = load_sound("Sound Effects/kick.mp3")
@@ -55,10 +71,15 @@ class Enemy():
         self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 'east_scythe_attack' : [], 
                            'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': [], 'west_scythe_attack' : []}
 
-        for animation in self.animations.keys():
-            full_path = enemy_path + animation
-            self.animations[animation] = import_folder(full_path)
+        self.attack_animations ={'scythe':[]}
 
+        for animation in self.animations.keys():
+            full_path_1 = enemy_path + animation
+            self.animations[animation] = import_folder(full_path_1)
+
+        for attack_animation in self.attack_animations.keys(): # Bringing in the attack of the scythe
+            full_path_2 = enemy_path + attack_animation
+            self.attack_animations[attack_animation] = import_folder(full_path_2)
 
     def get_player_distance_directions(self,player):
         
@@ -86,27 +107,55 @@ class Enemy():
     def get_status(self,player):
         distance,direction,horizontal_pos = self.get_player_distance_directions(player)
         
-        if distance <= self.notice_radius and distance > self.attack_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
+        if self.has_been_hit:
+            self.is_scythe_attacking = False
+            state = '_hurt'
+            self.direction = pygame.math.Vector2()
+            self.animation_speed = 0.20
+        
+        elif self.is_scythe_attacking: # Causes the relevant animation to be played
+            state = '_scythe_attack'
+            self.direction = pygame.math.Vector2()
+        
+        elif distance <= self.attack_radius and distance < self.notice_radius:
+            state = '_attack'
+            self.direction = direction
+        
+        elif distance <= self.scythe_radius and distance > self.attack_radius:
+            # Start a scythe attack when the cooldown has elapsed.
+            if pygame.time.get_ticks() - self.last_scythe_attack_time >= self.scythe_attack_cooldown:
+                self.last_scythe_attack_time = pygame.time.get_ticks()
+
+                if random.choice((True, False)) == True: # 50/50 chance of either enemy walking, or using scythe attack. 
+                    self.is_scythe_attacking = True
+                    self.scythe_was_thrown = False
+                    self.scythe_target_at_launch = pygame.math.Vector2(player.hitbox.center)
+                    state = '_scythe_attack'
+                    self.direction = pygame.math.Vector2()
+                else:
+                    state = '_walk'
+                    self.direction = direction
+        
+            else:
+                # Close the distance while waiting for the scythe cooldown.
+                state = '_walk' # Once the scythe attack is done, the enemy returns to walking.
+                self.direction = direction
+            # The scythe range is separate from the kick attack, so reset kick sound state.
+            self.is_kick_sound_played = False
+        
+        
+        elif distance <= self.notice_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
             state = '_walk'
 
             self.is_kick_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
             self.direction = direction 
         
-        elif distance <= self.attack_radius and distance < self.notice_radius:  #---> If the player is already within the notice radius and then enters into the attack radius, the enemy will attack the player
-            state = '_attack'
-            self.direction = direction
         else:
             state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
             self.direction = pygame.math.Vector2(0, 0)
 
-        if self.has_been_hit == True: # --> If the enemy has been hit, it will enter the hurt state regardless of its distance from the player.
-            state = '_hurt'
-            self.direction = pygame.math.Vector2(0, 0) # --> The enemy will not move towards the player when it is hurt by the blast, it will only be knocked back by the blast.
-            self.animation_speed = 0.20
         new_status = horizontal_pos + state
 
-
-    
         if new_status != self.status:
             self.frame_index = 0
             self.is_kick_sound_played = False # ---> This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
@@ -143,12 +192,17 @@ class Enemy():
         if self.frame_index >= len(animations):
             self.frame_index = 0
             self.is_kick_sound_played = False # ---> This ensures that the sound effect will only play once per attack animation, and not multiple times during the same animation cycle
+            if 'scythe_attack' in self.status:
+                self.is_scythe_attacking = False
 
         if 'hurt' in self.status and self.frame_index >= len(animations) - 1: # --> Checks for when one loop of the hurt animation is played so that the hurting animation stops.
             self.has_been_hit = False
             self.animation_speed = 0.15
 
-        if 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
+        if 'scythe_attack' in self.status:
+            if int(self.frame_index) >= 8 and not self.scythe_was_thrown: # The 8th frame is chosen, as that seems to be the most visibly appropriate point for the scythe to be thrown.
+                self.throw_scythe()
+        elif 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
             if int(self.frame_index) == 5 and self.is_kick_sound_played == False: # ---> The self frame index at which the sound is playeed has changed from '2' to '5' so that the sound effect is played at the point of contact between the kick and the player.
                 self.is_kick_sound_played = True
                 self.sound_effects()
@@ -157,6 +211,57 @@ class Enemy():
         self.image = animations[int(self.frame_index)]
         self.image = pygame.transform.scale(self.image, (200,200))
         self.rect = self.image.get_rect(center = self.hitbox.center)
+
+    def throw_scythe(self): # Sets up the relevant coordinates for where the scythe is thrown and lands
+        self.scythe_was_thrown = True
+        self.scythe_in_flight = True
+        
+        # Save the projectile's launch and landing positions.
+        self.scythe_start_position = pygame.math.Vector2(self.rect.center)
+        
+        self.scythe_target_position = self.scythe_target_at_launch.copy() # This is fully understood at Line 130
+        
+        # Calculate the travel time based on the distance to the target.
+        self.scythe_direction = self.scythe_target_position - self.scythe_start_position
+        
+        distance = self.scythe_direction.length()
+        
+        self.scythe_flight_duration = max(350, distance / 700 * 1000) # To Convert seconds to milliseconds for pygame ticks.
+        
+        # Reset the flight timer and animation for this throw.
+        self.scythe_started_at = pygame.time.get_ticks()
+        
+        self.scythe_frame_index = 0
+        
+        # Start the projectile at the enemy's position.
+        self.scythe_rect.center = self.scythe_start_position
+
+    def update_scythe_projectile(self, target_position):
+        if not self.scythe_in_flight:
+            return
+
+        self.scythe_target_position = pygame.math.Vector2(target_position) # This is given in the player_damage_health function, allowing for for this position to be updated based upon where the player is.
+        self.scythe_direction = self.scythe_target_position - self.scythe_start_position
+
+        elapsed = pygame.time.get_ticks() - self.scythe_started_at # To see how much time has gone by since the scythe is thrown.
+        progress = min(elapsed / self.scythe_flight_duration, 1) # This is capped at 1, so that it doesn't go beyond target.
+        position = self.scythe_start_position + self.scythe_direction * progress # To get it's current position, we add to its start position the product of multiplying the direction of the scythe with its progress of movement.
+        position.y -= math.sin(math.pi * progress) * 100  # To give the scythe's height an arc-like effect. (Its Max Height will be 100 pixels above its straight line path, with its height varying throughout the start and end of movement)
+        self.scythe_rect.center = round(position.x), round(position.y) # We need this to find point of collision between player and scythe.
+
+        if elapsed > self.scythe_flight_duration + 100: # Keep the scythe active for a brief period of time to register the collision check.
+            self.scythe_in_flight = False
+
+    def draw_scythe_projectile(self):
+        if not self.scythe_in_flight:
+            return
+
+        # Making the image of the scythe.
+        animations = self.attack_animations['scythe']
+        self.scythe_frame_index = (self.scythe_frame_index + self.animation_speed) % len(animations)
+       
+        image = pygame.transform.scale(animations[int(self.scythe_frame_index)], (100, 100))
+        self.screen.blit(image, image.get_rect(center=self.scythe_rect.center))
 
 
     def enemy_health_bar(self):
@@ -271,12 +376,11 @@ class Enemy():
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
         self.move(self.speed)
         self.animate()
+        self.draw_scythe_projectile()
         self.sound_effects()
         self.enemy_health_bar()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
-        #choice_for_laugh = random.choice([1,2,3])  
-        #self.enemy_laugh.play() if choice_for_laugh == 1 else None  # Play the laugh sound effect with a 1 in 3 chance
 
     def enemy_update(self,player):
         self.get_status(player)
