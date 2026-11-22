@@ -249,7 +249,9 @@
             1) Changing position limits for which health orb can spawn, so that the health orb is not too close to the player
             2) Completing the animation of the scythe projectile, which has 8 frames.
             3) Fixing the animation of the enemy scythe attack, making sure it is adequately sized.
-            4) Implementing the enemy scythe attack, which is as follows:
+            4) Sound Effects for both scythe, and the player getting hurt
+            5) Fixing the animation of the enemy scythe attack, by removing the scythe from frames 9 to 11, which was on the enemy's hand, to improve the coherence of the animation.
+            6) Implementing the enemy scythe attack, which is as follows:
                   i) Set and adjusted the enemy's notice, scythe, and kick radii.
                   ii) Set up the vectors used to determine the scythe's starting and target positions.
                   iii) Added a 50/50 chance for the enemy to enter the scythe attack or walk state when it is within the relevant radius.

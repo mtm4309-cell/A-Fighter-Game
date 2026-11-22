@@ -40,6 +40,7 @@ class Enemy():
         self.notice_radius = 700 # --> Enemy would start moving immediately, and gives the game a more active feel
 
         self.is_kick_sound_played = False
+        self.is_scythe_sound_played = False
         self.scythe_attack_cooldown = 2000
         self.last_scythe_attack_time = pygame.time.get_ticks() - self.scythe_attack_cooldown # To give some time between subsequent attacks
         self.is_scythe_attacking = False # For the enemy
@@ -54,11 +55,13 @@ class Enemy():
         self.scythe_frame_index = 0
         self.scythe_rect = pygame.Rect(0, 0, 54, 54)
 
+
     # --- START OF ASSETS --- # 
         self.kick = load_sound("Sound Effects/kick.mp3")
         self.enemy_laugh = load_sound("Sound Effects/enemy_laugh.mp3")
         self.enemy_get_hurt = load_sound("Sound Effects/enemy_get_hurt.mp3")
         self.enemy_get_hurt.set_volume(0.1)
+        self.scythe_sound_effect = load_sound("Sound Effects/scythe_being_thrown.mp3")
 
 
     # --- END OF ASSETS --- #
@@ -201,6 +204,7 @@ class Enemy():
 
         if 'scythe_attack' in self.status:
             if int(self.frame_index) >= 8 and not self.scythe_was_thrown: # The 8th frame is chosen, as that seems to be the most visibly appropriate point for the scythe to be thrown.
+                self.is_scythe_sound_played = True
                 self.throw_scythe()
         elif 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
             if int(self.frame_index) == 5 and self.is_kick_sound_played == False: # ---> The self frame index at which the sound is playeed has changed from '2' to '5' so that the sound effect is played at the point of contact between the kick and the player.
@@ -259,10 +263,8 @@ class Enemy():
         # Making the image of the scythe.
         animations = self.attack_animations['scythe']
         self.scythe_frame_index = (self.scythe_frame_index + self.animation_speed) % len(animations)
-       
         image = pygame.transform.scale(animations[int(self.scythe_frame_index)], (100, 100))
         self.screen.blit(image, image.get_rect(center=self.scythe_rect.center))
-
 
     def enemy_health_bar(self):
 
@@ -296,6 +298,10 @@ class Enemy():
         if not 'attack' in self.status and not pygame.mixer.Channel(4).get_busy():
             if self.enemy_health > 0: # Only played when the enemy is alive, and not dead.
                 pygame.mixer.Channel(4).play(self.enemy_laugh) if random.randint(1, 720) == 1 else None  # Play the laugh sound effect with a 1 in every 720 chances, the number chosen is arbritary.
+
+        if self.is_scythe_sound_played and not pygame.mixer.Channel(5).get_busy():
+            pygame.mixer.Channel(5).play(self.scythe_sound_effect)
+            self.is_scythe_sound_played = False
     
     def enemy_get_hurt_by_blast(self,player):
         # Detect the collision as soon as the blast overlaps the enemy.

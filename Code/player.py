@@ -44,6 +44,8 @@ class Player(pygame.sprite.Sprite):
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
 
+        self.getting_hurt_sound_effect = load_sound("Sound Effects/player_getting_hurt.mp3")
+
     # --- END OF ASSETS --- #
 
 
@@ -403,6 +405,7 @@ class Player(pygame.sprite.Sprite):
                 if 'attack' in enemy.status and 'scythe_attack' not in enemy.status: # Only considers the kicking animation
                     if self.hitbox.colliderect(enemy.hitbox) and not self.is_player_damaged: # --> Prevents repeat damage during the hurt animation.
                         self.health_being_updated -= damage
+                        self.getting_hurt_sound_effect.play()
                         self.is_player_damaged = True
 
                     # Knockback effect of the player
@@ -424,6 +427,8 @@ class Player(pygame.sprite.Sprite):
             enemy.scythe_in_flight = False
             if self.health_being_updated > 0 and not self.is_player_damaged:
                 self.health_being_updated -= scythe_damage
+                self.getting_hurt_sound_effect.play()
+
                 self.is_player_damaged = True
                 # Knockback effect of the player
                
