@@ -43,8 +43,13 @@ class Player(pygame.sprite.Sprite):
 
         self.level_font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf",54)
         self.level_box_rect = None
+        self.hurt_text = None
 
         self.getting_hurt_sound_effect = load_sound("Sound Effects/player_getting_hurt.mp3")
+
+        self.alpha = 255 # Helps in the opaqueness of the text.
+        self.frame_speed = 10
+        self.hurt_text_y_offset = 0 # Will help in causing the text to go up as it fades, making the animation-like effect more smoother.
 
     # --- END OF ASSETS --- #
 
@@ -117,6 +122,7 @@ class Player(pygame.sprite.Sprite):
         self.sword_hit_frame = 4 # --> The frame at which damage to enemy is registered.
         self.sword_hit_registered = False # --> Helps to register damage onto enemy
 
+
     # --- END OF PLAYER MOVEMENT --- #
 
     # --- PLAYER ANIMATION --- #
@@ -155,7 +161,7 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if (not 'heal' in self.status) and (not '_sword_attack' in self.status): # --> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
+        if (not 'heal' in self.status) and (not '_sword_attack' in self.status) and (not 'hurt' in self.status): #--> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 self.direction.x = 1
                 self.status = 'east'
@@ -175,13 +181,17 @@ class Player(pygame.sprite.Sprite):
                     if self.is_sprinting == False:
                         self.speed = self.sprint_speed
                         self.animation_speed = 0.25
-                
-                        self.is_sprinting = True
             
+                        self.is_sprinting = True
+                
                 else:
-                    self.speed = self.sprint_speed /2
+                    self.speed = self.sprint_speed / 2
                     self.animation_speed = 0.15
                     self.is_sprinting = False
+            else:
+                self.speed = self.sprint_speed /2
+                self.animation_speed = 0.15
+                self.is_sprinting = False
                 
             if self.is_jumping == True:
                 self.pos.y -= self.jump_speed
@@ -244,6 +254,8 @@ class Player(pygame.sprite.Sprite):
 
     def animate(self):
         if '_sword_attack' in self.status:
+            self.animation_speed = 0.25
+        elif self.is_sprinting: # Limiting going faster to these two states
             self.animation_speed = 0.25
         else:
             self.animation_speed = 0.15
@@ -405,6 +417,9 @@ class Player(pygame.sprite.Sprite):
                 if 'attack' in enemy.status and 'scythe_attack' not in enemy.status: # Only considers the kicking animation
                     if self.hitbox.colliderect(enemy.hitbox) and not self.is_player_damaged: # --> Prevents repeat damage during the hurt animation.
                         self.health_being_updated -= damage
+                        self.hurt_text = self.level_font.render(str(damage), False, 'red')
+                        self.alpha = 255
+                        self.hurt_text_y_offset = 0 # Both are in initial conditions, which are subject to change once the text is actually displayed.
                         self.getting_hurt_sound_effect.play()
                         self.is_player_damaged = True
 
@@ -427,6 +442,9 @@ class Player(pygame.sprite.Sprite):
             enemy.scythe_in_flight = False
             if self.health_being_updated > 0 and not self.is_player_damaged:
                 self.health_being_updated -= scythe_damage
+                self.hurt_text = self.level_font.render(str(scythe_damage), False ,'red')
+                self.alpha = 255
+                self.hurt_text_y_offset = 0 # Both are in initial conditions, which are subject to change once the text is actually displayed.
                 self.getting_hurt_sound_effect.play()
 
                 self.is_player_damaged = True
@@ -612,6 +630,14 @@ class Player(pygame.sprite.Sprite):
             self.blast_animation_and_sound_effects()
         self.animation_of_explosion()
         self.collision_of_blast_with_wall()
+        if self.hurt_text is not None:
+            self.alpha = max(0,self.alpha - self.frame_speed) # Text fades out slowly
+            self.hurt_text_y_offset += self.frame_speed / 10 # The text slowly and slowly goes up as it fades
+            self.hurt_text.set_alpha(self.alpha)
+            self.screen.blit(self.hurt_text, (self.rect.x, (self.rect.y - 30 - self.hurt_text_y_offset))) # -30 for the text to be up at first, and then the offset makes it go further up.
+            if self.alpha == 0:
+                self.hurt_text = None
+
     def player_update(self,enemy):
         self.collision_of_blast_with_enemy(enemy)
         self.player_damage_health(enemy)

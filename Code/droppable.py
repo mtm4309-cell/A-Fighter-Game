@@ -24,6 +24,10 @@ class Droppable():
         self.last_player_health = None
         self.health_gain_text = None
 
+        self.alpha = 255
+        self.frame_speed = 10
+        self.health_gain_text_offset_y = 0
+
         # [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
         
 
@@ -104,6 +108,8 @@ class Droppable():
             player.player_heal.play()
 
             player.has_player_collected_health_orb = True
+            self.alpha = 255
+            self.health_gain_text_offset_y = 0
             self.health_gain_text = player.level_font.render(f"{self.health_orb_attributes['Health Boost']}", False, "#48ba79") # Text to be displayed
 
             if player.health_being_updated > 100:                
@@ -124,7 +130,12 @@ class Droppable():
         pygame.draw.rect(self.screen ,'green',self.health_rect ,2) # For debugging
         
         if player.has_player_collected_health_orb and self.health_gain_text is not None: # Text is displayed here, where it is not limited by irrelevant conditions.
-            self.screen.blit(self.health_gain_text,(player.rect.x,player.rect.y - 30))
+            self.alpha = max(0,self.alpha - self.frame_speed)
+            self.health_gain_text.set_alpha(self.alpha)
+            self.health_gain_text_offset_y +=self.frame_speed/10
+            self.screen.blit(self.health_gain_text,(player.rect.x,player.rect.y - 30-self.health_gain_text_offset_y))
+        else:
+            self.health_gain_text = None
 
         if self.point_at_which_health_orb_will_spawn != player.player_x or self.point_at_which_health_orb_will_spawn == (player.player_x -500) or self.point_at_which_health_orb_will_spawn == (player.player_x + 500) :
             current_health = player.health_being_updated

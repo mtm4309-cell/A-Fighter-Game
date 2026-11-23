@@ -259,3 +259,10 @@
                   v) Added scythe movement progress, giving the projectile an arc-like trajectory.
                   vi) Added rendering for the scythe projectile.
                   vii) Added player damage registration for scythe collisions in the Player class.
+
+      Date: 23 / 11 / 2026:
+            1) Dispaying text of the damage that the player recieves, which stays for as long as the player is in the hurt state.
+            2) Limiting movement of player when in the hurt state --> The relevant animation is built upon the idle state of the player.
+            3) Smoothening the display of the hurt and healing texts of the player --> As for the fading effect, the set_aplha() function was used, with which the value inside the brackets change based upon the fade speed. As for the text going upwards, this was done by setting an offset based on the vertical axis, with which the y coordinate of the text is substracted by. This offset changes by its addition to (frame speed / 10). Both of these features combined gives a more aesthetic feel to the game, not overwhelming the player with blunt displays.
+            4) Limiting animation speed to only when sprinting --> This was given its own if statement as before, various animations would not fully play if the player was running, such as the healing animation. Now all the animations will be fully played irregardless of the player running, or walking at normal speed.
+            
