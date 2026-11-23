@@ -50,6 +50,7 @@ class Enemy():
         self.scythe_start_position = pygame.math.Vector2() # This would be where the enemy is
         self.scythe_target_position = pygame.math.Vector2() # Where the player is
         self.scythe_direction = pygame.math.Vector2()  # Calculated when the scythe is thrown
+        self.scythe_facing_left = False
         self.scythe_started_at = 0
         self.scythe_flight_duration = 0
         self.scythe_frame_index = 0
@@ -219,6 +220,7 @@ class Enemy():
     def throw_scythe(self): # Sets up the relevant coordinates for where the scythe is thrown and lands
         self.scythe_was_thrown = True
         self.scythe_in_flight = True
+        self.scythe_facing_left = 'west' in self.status
         
         # Save the projectile's launch and landing positions.
         self.scythe_start_position = pygame.math.Vector2(self.rect.center)
@@ -264,6 +266,8 @@ class Enemy():
         animations = self.attack_animations['scythe']
         self.scythe_frame_index = (self.scythe_frame_index + self.animation_speed) % len(animations)
         image = pygame.transform.scale(animations[int(self.scythe_frame_index)], (100, 100))
+        if self.scythe_facing_left:
+            image = pygame.transform.flip(image, True, False)
         self.screen.blit(image, image.get_rect(center=self.scythe_rect.center))
 
     def enemy_health_bar(self):
