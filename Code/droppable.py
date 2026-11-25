@@ -36,6 +36,7 @@ class Droppable():
         self.health_rect = self.health_image.get_rect(topleft=self.point_at_which_health_orb_will_spawn)
         self.health_rect.inflate_ip(-50, 0)
         self.health_orb_timer_started = False
+        self.health_orb_available = True
 
         self.import_health_orb_assets()
 
@@ -44,10 +45,22 @@ class Droppable():
 
         # -- INITIALISATION OF BANANA PEEL -- #
 
-        #original_banana_peel_image = pygame.image.load("Sprites/droppable/banana_peel/frame_001.png").convert_alpha()
-        #self.banana_peel_image = pygame.transform.scale(original_banana_peel_image, (150, 150))
-        #self.banana_peel_rect = self.banana_peel_image.get_rect(topleft=self.point_at_which_banana_peel_will_spawn)
+        original_banana_peel_image = pygame.image.load("Sprites/droppable/banana_peel/frame_001.png").convert_alpha()
+        self.banana_peel_image = pygame.transform.scale(original_banana_peel_image, (150, 150))
+        self.banana_peel_rect = self.banana_peel_image.get_rect()
 
+        self.set_banana_peel_spawn_point()
+
+        self.banana_available = True
+        self.banana_peel_finished = False
+
+        self.banana_peel_attributes = {'Duration': 4500, 'Slipping Effect': 30}
+        self.banana_frame_index = 0
+        self.banana_peel_phase = "active"
+        self.banana_peel_active_since = None
+        self.banana_respawn_at = None
+
+        self.import_banana_peel_assets()
 
     def import_health_orb_assets(self):
         # Load the frame sequence from the same directory as the orb image.
@@ -60,7 +73,6 @@ class Droppable():
             self.x_coordinate_at_which_health_orb_will_spawn,
             self.MAX_HEIGHT // 2,
         )
-
 
     def animate_health_orb(self):
         animation = self.animations['health_orb']
@@ -82,6 +94,8 @@ class Droppable():
     def check_if_health_orb_is_collected(self,player):
 
         if player.health_being_updated == 100 or player.health_being_updated < 30:
+            return False
+        if not self.health_orb_available:
             return False
 
         else:
@@ -121,10 +135,13 @@ class Droppable():
         print(f"Player health after collecting health orb: {player.health_being_updated}")        
 
     def respawn_of_health_orb(self):
-        self.set_health_orb_spawn_point()
-        self.health_rect.topleft = self.point_at_which_health_orb_will_spawn
+        self.health_orb_available = random.choice((True,False))
         self.health_orb_timer_started = False
         self.frame_index = 0
+
+        if self.health_orb_available: # 50/50 Chance for the health orb to spawn.
+            self.set_health_orb_spawn_point()
+            self.health_rect.topleft = self.point_at_which_health_orb_will_spawn
 
     def health_orb_update_with_player(self,player):
         pygame.draw.rect(self.screen ,'green',self.health_rect ,2) # For debugging
@@ -162,24 +179,94 @@ class Droppable():
         
     # -- END OF HEALTH ORB RELATED CODE -- #
 
+    # -- START OF BANANA PEEL CODE -- #
+
     def import_banana_peel_assets(self):
         # Load the frame sequence from the same directory as the banana peel image.
         banana_peel_path = "Sprites/droppable/banana_peel/"
         self.banana_peel_animations = {'banana_peel': import_folder(banana_peel_path)}
 
     def animate_banana_peel(self):
-        animation = self.banana_peel_animations['banana_peel']
-        if animation:
-            self.frame_index += self.animation_speed
-            if self.frame_index >= len(animation):
-                self.frame_index = 0
+        animation = self.banana_peel_animations['banana_peel'] # Loading the relevant frames
+        if self.banana_peel_finished or not animation:
+            return None
 
-            self.banana_peel_image = pygame.transform.scale(animation[int(self.frame_index)], (150, 150))
-        
+        # Draw each frame before going to the next frame.
+        current_frame = int(self.banana_frame_index)
+        self.banana_peel_image = pygame.transform.scale(animation[current_frame], (150, 150))
         self.screen.blit(self.banana_peel_image, self.banana_peel_rect)
 
+        # Keep the active animation on its final frame; let the outro advance.
+        if self.banana_peel_phase == "active":
+            self.banana_frame_index = min(8, self.banana_frame_index + self.animation_speed) # Keeps the peel locked at the 9th image.
+        else: # At the 'outro' part where the animation will be complete.
+            self.banana_frame_index += self.animation_speed
 
-    def banana_peel_update_with_player(self,player):
-        pass  # Placeholder for future banana peel update logic
+        return current_frame
+
+
+    def set_banana_peel_spawn_point(self):
+        self.x_coordinate_at_which_banana_peel_will_spawn = random.randint(0, max(0, self.MAX_WIDTH - 150))
+        self.point_at_which_banana_peel_will_spawn = (
+            self.x_coordinate_at_which_banana_peel_will_spawn,
+            self.MAX_HEIGHT // 2,
+        )
+        self.banana_peel_rect.topleft = self.point_at_which_banana_peel_will_spawn
+
+    def try_banana_peel_respawn(self, current_ticks):
+        # Randomly make the peel available again or delay its next appearance.
+        self.banana_available = random.choice((True, False))
+        if self.banana_available: # Setting up relevant variables for the banana peel to spawn and do its job
+            self.banana_peel_finished = False
+            self.banana_peel_phase = "active"
+            self.banana_frame_index = 0
+            self.banana_peel_active_since = None
+            self.banana_respawn_at = None
+            self.set_banana_peel_spawn_point()
+        else: # If false, some time is given before the random.choice function is used again.
+            self.banana_respawn_at = (current_ticks + self.banana_peel_attributes['Duration'])
+
+    def banana_peel_update_with_player(self,player): # The actual occurence of the banana peel
+        current_ticks = pygame.time.get_ticks()
+        pygame.draw.rect(self.screen ,'yellow',self.banana_peel_rect ,2) # For debugging
+
+        if not self.banana_available: # When false, time is given before the re-rolling of the peel spawning occurs.
+            if (self.banana_respawn_at is not None and current_ticks >= self.banana_respawn_at):
+                self.try_banana_peel_respawn(current_ticks)
+            return
+
+        animation = self.banana_peel_animations['banana_peel'] # In case there are any problems with files.
+        if not animation:
+            return
+
+        if (self.banana_peel_phase == "active" and self.banana_peel_active_since is not None and current_ticks - self.banana_peel_active_since >= self.banana_peel_attributes['Duration']):
+            # If NO collision has occured and so the peel's active time has ended, so continue with the outro frames.
+            self.banana_peel_phase = "outro"
+            self.banana_frame_index = 9 # This occurs in the animate function.
+
+        if self.banana_peel_phase == "active": # Animation of the first 9 images of the banana peel
+            current_frame = self.animate_banana_peel()
+            if current_frame is None:
+                return  # In case of any errors in fikes.
+
+            # Only active frames can trigger a slip when the player overlaps the peel.
+            if 6 <= current_frame <= 8 and self.banana_peel_rect.colliderect(player.hitbox):
+                player.apply_slip(self.banana_peel_attributes['Slipping Effect']) # Causing the player to slip
+                self.banana_peel_phase = "outro" # Once this collision has occured, the animation will now be complete
+                self.banana_frame_index = 9
+            
+            elif current_frame == 8 and self.banana_peel_active_since is None: 
+                self.banana_peel_active_since = current_ticks # To ensure that the relevant timer is set only once, rather than being updated constantly as the image is displayed.
+            return 
+
+        if self.banana_frame_index >= len(animation): # Once the animation is complete, the program goes back to respawning the banana peel.
+            self.banana_peel_finished = True
+            self.try_banana_peel_respawn(current_ticks)
+            return
+
         
-    
+        self.animate_banana_peel() # Actual animation of banana peel.
+
+
+
+        # -- END OF BANANA PEEL CODE -- #

@@ -267,3 +267,14 @@
             4) Limiting animation speed to only when sprinting --> This was given its own if statement as before, various animations would not fully play if the player was running, such as the healing animation. Now all the animations will be fully played irregardless of the player running, or walking at normal speed.
             5) Improving animation of the scythe by adding the effect of air represented in white onto the relevant frames.
             6) Flipping the image of the scythe if the enemy is facing left, so that the animation on both directions remain consistent.
+      
+      Date: 25 / 11 / 2026:
+            1) Randomising when the health orb spawns --> The random.choice function is used so that there is a 50/50 chance of the health orb spawning. This was done to increase the difficulty of the game such that the player does not have a confirmed chance of healing.
+            2) Implementing a banana peel that causes the player to slip:
+                  i) Setting up the banana peel's attributes.
+                  ii) Loading the animation frames to display on screen.
+                  iii) Dividing the animation into two parts: the active phase, during which the peel unfolds and lands on the ground, and the outro, during which it disappears. Collision is enabled during the active phase, except while the peel is unfolding. The outro plays after the player collides with the peel or its duration expires.
+                  iv) Randomising the banana peel's spawn point, as with the health orb.
+                  v) Giving the banana peel a 50/50 chance to spawn.
+                  vi) Implementing the player's slip in player.py by increasing the player's velocity by the amount of slipping when triggered.
+                  vii) Adding a whooshing/slipping sound effect when collision occurs.

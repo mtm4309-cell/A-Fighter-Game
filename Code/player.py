@@ -51,6 +51,11 @@ class Player(pygame.sprite.Sprite):
         self.frame_speed = 10
         self.hurt_text_y_offset = 0 # Will help in causing the text to go up as it fades, making the animation-like effect more smoother.
 
+        self.slip_velocity = pygame.math.Vector2() # Helps us with the banana peel.
+        self.slip_until = 0
+
+        self.slip_sound = load_sound("Sound Effects/banana_slip.mp3")
+
     # --- END OF ASSETS --- #
 
 
@@ -338,6 +343,13 @@ class Player(pygame.sprite.Sprite):
 
         self.pos += self.direction * speed # Updates the actual positon of player on the screen
 
+        if pygame.time.get_ticks() < self.slip_until:
+            self.pos += self.slip_velocity
+            self.slip_velocity *= 0.90
+        else:
+            self.slip_velocity.update(0,0)
+        
+
         self.pos += self.knockback_velocity # --> This will happen only when the enemy is hit by the blast, 
         self.knockback_velocity *= 0.8 # --> Creates a deceleration effect, making things look smooth, this works as the self.knockback_velocity is changing when the enemy is hit by the blast.
         
@@ -616,6 +628,19 @@ class Player(pygame.sprite.Sprite):
             return True
         # The return statements will be directed towards the enemy subroutine 'enemy_hurt_by_sword()'
         return False
+
+    def apply_slip(self,strength = 30 ,duration_ms = 4500): # This function will occur based upon if conditions are met in droppable.py
+        direction = self.direction.x
+
+        self.slip_sound.play()
+        if direction == 0:
+            if 'east' in self.status:
+                direction = 1
+            else:
+                direction = -1
+
+        self.slip_velocity.x = direction * strength
+        self.slip_until = pygame.time.get_ticks() + duration_ms
 
 
     def update(self):

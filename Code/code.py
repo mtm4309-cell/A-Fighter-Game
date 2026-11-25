@@ -107,6 +107,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
     enemy_1 = Enemy(100,100,5,5,WIN)
     health_orb = Droppable(WIN)
     pygame.display.set_caption("Zain's Game")
+    banana_peel = Droppable(WIN)
 
 # ---- Changes above are to set up for what is to come next ---
 
@@ -119,7 +120,8 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
         enemy_1.update()
 
         health_orb.health_orb_update_with_player(me)
-
+        banana_peel.banana_peel_update_with_player(me)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
