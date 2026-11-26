@@ -26,7 +26,13 @@ class Enemy():
         
 
         original_image = load_image("Sprites/enemy_sprite/east_idle/east.png")
-        
+
+
+        self.alpha = 255 # Helps in the opaqueness of the text.
+        self.frame_speed = 10
+        self.damage_text_y_offset = 0 # Will help in causing the text to go up as it fades, making the animation-like effect more smoother.
+        self.damage_text = None
+
         
         self.image = pygame.transform.scale(original_image, (500,500))
         self.pos = pygame.math.Vector2(self.enemy_x,self.enemy_y)
@@ -341,7 +347,11 @@ class Enemy():
             # --> By how much the knockback velocity is increased depends on the distance by which the enemy goes back and the multiplier for enemy knockback. The multiplier is used to adjust the knockback effect based on the blast type.
                 
             self.enemy_health = self.enemy_health - damage
-                
+
+            self.damage_text = player.level_font.render(str(damage), False,  '#dfce67')
+            self.alpha = 255
+            self.damage_text_y_offset = 0
+            
             print(f"Enemy health after blast: {self.enemy_health}")
             self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
 
@@ -370,7 +380,11 @@ class Enemy():
             # --> By how much the knockback velocity is increased depends on the distance by which the enemy goes back and the multiplier for enemy knockback. The multiplier is used to adjust the knockback effect based on the blast type.
                 
             self.enemy_health = self.enemy_health - damage
-                
+
+
+            self.damage_text = player.level_font.render(str(damage), False, '#dfce67')
+            self.alpha = 255
+            self.damage_text_y_offset = 0
             print(f"Enemy health after blast: {self.enemy_health}")
             self.enemy_get_hurt.play()  # Play the sound effect when the enemy gets hurt
 
@@ -391,6 +405,13 @@ class Enemy():
         self.enemy_health_bar()
         pygame.draw.rect(self.screen,"green", self.rect,1)
         pygame.draw.rect(self.screen,"blue", self.hitbox,1)
+        if self.damage_text is not None:
+            self.alpha = max(0,self.alpha - self.frame_speed) # Text fades out slowly
+            self.damage_text.set_alpha(self.alpha)
+            self.screen.blit(self.damage_text, (self.rect.x, (self.rect.y - 30))) # -30 for the text to be up at first, and then the offset makes it go further up.
+            if self.alpha == 0:
+                self.hurt_text = None
+
 
     def enemy_update(self,player):
         self.get_status(player)

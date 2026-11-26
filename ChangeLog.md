@@ -278,3 +278,12 @@
                   v) Giving the banana peel a 50/50 chance to spawn.
                   vi) Implementing the player's slip in player.py by increasing the player's velocity by the amount of slipping when triggered.
                   vii) Adding a whooshing/slipping sound effect when collision occurs.
+
+      Date: 26 / 11 / 2026:
+            1) Displaying text of damage registered on enemy --> This was done in a similar way as that for the player, except for the y_offset. This is because the text is not clear and goes towards the enemy health bar, making the game less coherent. The text is now displayed in a yellow colour, with the Hex Code '#dfce67'
+            2) Implementation of a game over screen when the player dies, and this is as follows
+                  i) Setting the player to dead only when their health reaches zero, and playing the player death sound effect.
+                  ii) Displaying a dimmed arena with a "GAME OVER" message and playing the game-over sound effect.
+                  iii) Showing the game-over screen for at least two seconds, or for the duration of the sound effect if it is longer.
+                  iv) Returning to the existing main menu after the game-over screen, without creating a separate menu.
+            3) Rendering the main menu to an off-screen surface before displaying it, preventing the exit button from briefly appearing before the rest of the menu.

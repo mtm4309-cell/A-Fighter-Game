@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         
     # --- END OF STATS --- #
         global health_being_updated
-        self.health_being_updated = 100 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
+        self.health_being_updated = 20 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
 
     # --- ASSETS --- #  [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
         
@@ -127,6 +127,7 @@ class Player(pygame.sprite.Sprite):
         self.sword_hit_frame = 4 # --> The frame at which damage to enemy is registered.
         self.sword_hit_registered = False # --> Helps to register damage onto enemy
 
+        self.is_player_alive = True
 
     # --- END OF PLAYER MOVEMENT --- #
 
@@ -642,7 +643,12 @@ class Player(pygame.sprite.Sprite):
         self.slip_velocity.x = direction * strength
         self.slip_until = pygame.time.get_ticks() + duration_ms
 
-
+    def play_death(self):
+        if self.health_being_updated <= 0:
+            self.is_player_alive = False
+            if not pygame.mixer.Channel(7).get_busy():
+                pygame.mixer.Channel(7).play(self.player_death)
+    
     def update(self):
         self.clock.tick(60)
         self.input()
@@ -651,6 +657,7 @@ class Player(pygame.sprite.Sprite):
         self.staying_in_screen()
         self.animate()
         self.player_health()
+        self.play_death()
         if 'heal' not in self.status:
             self.blast_animation_and_sound_effects()
         self.animation_of_explosion()

@@ -51,7 +51,7 @@ class Droppable():
 
         self.set_banana_peel_spawn_point()
 
-        self.banana_available = True
+        self.banana_available = True # Always must be False by default, else it will be annoying at the start of the game.
         self.banana_peel_finished = False
 
         self.banana_peel_attributes = {'Duration': 4500, 'Slipping Effect': 30}
@@ -144,7 +144,7 @@ class Droppable():
             self.health_rect.topleft = self.point_at_which_health_orb_will_spawn
 
     def health_orb_update_with_player(self,player):
-        pygame.draw.rect(self.screen ,'green',self.health_rect ,2) # For debugging
+        #pygame.draw.rect(self.screen ,'green',self.health_rect ,2) # For debugging
         
         if player.has_player_collected_health_orb and self.health_gain_text is not None: # Text is displayed here, where it is not limited by irrelevant conditions.
             self.alpha = max(0,self.alpha - self.frame_speed)
@@ -193,7 +193,7 @@ class Droppable():
 
         # Draw each frame before going to the next frame.
         current_frame = int(self.banana_frame_index)
-        self.banana_peel_image = pygame.transform.scale(animation[current_frame], (150, 150))
+        self.banana_peel_image = pygame.transform.scale(animation[current_frame], (125, 125))
         self.screen.blit(self.banana_peel_image, self.banana_peel_rect)
 
         # Keep the active animation on its final frame; let the outro advance.
@@ -228,7 +228,7 @@ class Droppable():
 
     def banana_peel_update_with_player(self,player): # The actual occurence of the banana peel
         current_ticks = pygame.time.get_ticks()
-        pygame.draw.rect(self.screen ,'yellow',self.banana_peel_rect ,2) # For debugging
+        #pygame.draw.rect(self.screen ,'yellow',self.banana_peel_rect ,2) # For debugging
 
         if not self.banana_available: # When false, time is given before the re-rolling of the peel spawning occurs.
             if (self.banana_respawn_at is not None and current_ticks >= self.banana_respawn_at):

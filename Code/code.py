@@ -97,6 +97,39 @@ def loading_screen():
 
     return True # If all assets are loaded, the game will start and the loading screen will disappear.
 
+def end_game(screen_width, screen_height): 
+    game_over.play() # Plays the sound effect
+    pygame.display.set_caption("Game Over")
+
+    background = pygame.transform.scale(arena, (screen_width, screen_height))
+    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    # Give the screen a dark overlay.
+    
+    game_over_title = second_font.render("GAME OVER", False, "white")
+    title_rect = game_over_title.get_rect(center=(screen_width / 2, screen_height * 0.4))
+    # Displaying the Game Over Text
+    
+    screen_duration = max(2000, round(game_over.get_length() * 1000))
+    screen_started = pygame.time.get_ticks()
+    # Setting a duration for as how long the screen is to remain 
+
+    while pygame.time.get_ticks() - screen_started < screen_duration:
+        # Keep the game-over screen visible for the configured duration.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                global running
+                running = False
+                return
+
+        # Redraw the background, dark overlay, and title each frame.
+        WIN.blit(background, (0, 0))
+        WIN.blit(overlay, (0, 0))
+        WIN.blit(game_over_title, title_rect)
+        pygame.display.flip()
+        # Limit the refresh loop to 60 frames per second.
+        clock.tick(60)
+
 def play(play_width,play_height): # This subroutine is where the actual game will occur
     playing = True
     arena_bigger = pygame.transform.scale(arena, (WIDTH,HEIGHT))
@@ -104,7 +137,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
     pygame.display.flip()
     me = Player(100,5,1,WIN)
 
-    enemy_1 = Enemy(100,100,5,5,WIN)
+    enemy_1 = Enemy(100,100,7,5,WIN)
     health_orb = Droppable(WIN)
     pygame.display.set_caption("Zain's Game")
     banana_peel = Droppable(WIN)
@@ -121,6 +154,11 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
 
         health_orb.health_orb_update_with_player(me)
         banana_peel.banana_peel_update_with_player(me)
+
+        if not me.is_player_alive: # If the player has lost all of its health, we go into the end_game() function.
+            end_game(play_width, play_height)
+            playing = False
+            continue
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -237,17 +275,19 @@ while running:
             after_fullscreen_sound = True
 
         pygame.display.set_caption("Main Menu")
-        WIN.blit(pygame.transform.scale(background_after_fullscreen,(WIDTH,HEIGHT)), (0, 0))
+        menu_surface = pygame.Surface(WIN.get_size())
+        menu_width, menu_height = menu_surface.get_size()
+        menu_surface.blit(pygame.transform.scale(background_after_fullscreen,(menu_width,menu_height)), (0, 0))
 
         greetings = second_font.render("A Fighter Game", False, "white")
             #pygame.draw.rect(WIN,"gray68", (WIDTH*0.35,HEIGHT*0.075, 445,HEIGHT*0.1))
 
-        WIN.blit(greetings,(WIDTH*0.325,HEIGHT*0.15))
+        menu_surface.blit(greetings,(menu_width*0.325,menu_height*0.15))
 
-        start_button_actual = button.Button((WIDTH*0.375),(HEIGHT * 0.2), start_button_img,1, 0,-230)
-        exit_button_actual = button.Button((WIDTH*0.375),(HEIGHT*0.5), exit_button_img,1,0,-230)
+        start_button_actual = button.Button((menu_width*0.375),(menu_height * 0.2), start_button_img,1, 0,-230)
+        exit_button_actual = button.Button((menu_width*0.375),(menu_height * 0.5), exit_button_img,1,0,-230)
 
-        if start_button_actual.draw(WIN): #When the user clicks on the start button
+        if start_button_actual.draw(menu_surface): #When the user clicks on the start button
             after_fullscreen_sound = False #Stops audio being played
                 
             click_button_sound.play() #Shows that button is pressed
@@ -261,7 +301,7 @@ while running:
             else:
                 running = False
 
-        if exit_button_actual.draw(WIN): # When exit button is pressed                                
+        if exit_button_actual.draw(menu_surface): # When exit button is pressed                                
             click_button_sound.play()
                 
             while pygame.mouse.get_pressed()[0]:  #Ensures that the button  is only clicked once
@@ -272,7 +312,8 @@ while running:
 
 
                 running = False # The game stops
-                     
+        
+        WIN.blit(menu_surface, (0, 0))
 
     pygame.display.flip()
     clock.tick(60)
