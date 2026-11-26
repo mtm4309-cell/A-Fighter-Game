@@ -281,9 +281,22 @@
 
       Date: 26 / 11 / 2026:
             1) Displaying text of damage registered on enemy --> This was done in a similar way as that for the player, except for the y_offset. This is because the text is not clear and goes towards the enemy health bar, making the game less coherent. The text is now displayed in a yellow colour, with the Hex Code '#dfce67'
-            2) Implementation of a game over screen when the player dies, and this is as follows
+            2) Implementation of a game over screen when the player dies, and this is as follows:
                   i) Setting the player to dead only when their health reaches zero, and playing the player death sound effect.
                   ii) Displaying a dimmed arena with a "GAME OVER" message and playing the game-over sound effect.
                   iii) Showing the game-over screen for at least two seconds, or for the duration of the sound effect if it is longer.
                   iv) Returning to the existing main menu after the game-over screen, without creating a separate menu.
             3) Rendering the main menu to an off-screen surface before displaying it, preventing the exit button from briefly appearing before the rest of the menu.
+
+            4) Randomising the spawn points of the droppable (either health orb or banana peel), which is as follows [with the help of Github Copilot]:
+                  i) Selecting a random horizontal position within the screen boundaries.
+                  ii) Keeping the item at least 200 pixels from the player's horizontal position whenever the screen has a suitable position.
+                  iii) Choosing the available position farthest from the player if the screen is too narrow to meet the distance requirement.
+                  iv) Using the same distance rule for both item types and when they spawn again.
+            5) Randomising which of the droppables is to spawn, which is as follows:
+                  i) Choosing the item type randomly each time a new droppable is due to spawn, instead of fixing the type for the whole game. This could lead to an increase in spontaneity for the player, making the game more interesting.
+                  ii) Spawning only one item type at a time, rather than showing the health orb and banana peel together, so the two effects cannot overlap. The screen will be less cluttered, and so less overwhelming for the player.
+                  iii) Limiting when the health orb should spawn based upon the health of the player and a 50/50 chance via the random/choice() function, where if any of these conditions are False, the banana peel is given more priority.
+                  iv) Selecting the next item only after the health orb is collected or expires, or after the banana peel finishes its animation. This reduces unnecessary CPU usage, which should make the game run faster, or reduce lagging.
+                  v) Repeating the selection process for each new drop, so the item type can change from one spawn to the next. This reduces any repeats in the type of droppable that is spawned.
+                  vi) Applying the same health-based decision and one-item-at-a-time rule throughout subsequent droppable cycles.

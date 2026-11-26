@@ -1,15 +1,19 @@
 import pygame, random
 from support import import_folder, load_image
 class Droppable():
-    def __init__(self,screen):
+    MIN_SPAWN_DISTANCE = 200 # Away from the player, so that the player has to move towards the droppable, rather than a sudden collision between the two.
+
+    def __init__(self, screen, player=None):
 
         # Getting dimensions of the user screen
         self.screen = screen
+        self.player = player
         self.MAX_WIDTH = self.screen.get_width()
         self.MAX_HEIGHT = self.screen.get_height()
 
         self.font = pygame.font.Font("UI related/FONTS/rainyhearts.ttf", 40)
         self.time_elapsed = pygame.time.get_ticks()
+        self.active_drop = None # This changes between health orb and the banana peel.
 
 
         # -- INITIALISATION OF HEALTH ORB -- #
@@ -67,12 +71,58 @@ class Droppable():
         health_orb_path = "Sprites/droppable/health_orb/"
         self.animations = {'health_orb': import_folder(health_orb_path)}
 
+    def get_spawn_x(self): # WITH HELP OF GITHUB COPILOT
+        max_x = max(0, self.MAX_WIDTH - 150) # The maximum postions that the x - coordinate's of the droppables can be.
+        if self.player is None:
+            return random.randint(0, max_x)
+
+        player_x = self.player.rect.centerx # Now we consider the x - coordinate of the player.
+        safe_positions = [] # Possible places for the droppables to spawn at.
+
+        # Find positions that are far enough from the player.
+        for x in range(max_x + 1):
+            droppable_center_x = x + 75
+
+            # Calculate the distance between the droppable and the player's centers.
+            if droppable_center_x >= player_x:
+                distance_from_player = droppable_center_x - player_x
+            else:
+                distance_from_player = player_x - droppable_center_x
+
+            # Keep this x-coordinate only when it meets the minimum spawn distance.
+            if distance_from_player >= self.MIN_SPAWN_DISTANCE:
+                safe_positions.append(x)
+
+        # Choose a random position from the safe options, if there are any.
+        if safe_positions:
+            return random.choice(safe_positions)
+
+        # If no position is far enough away, use whichever edge is farther from the player.
+        left_edge = 0
+        right_edge = max_x
+        left_center_x = left_edge + 75 
+        right_center_x = right_edge + 75
+
+        # Calculate the distance from the player's center to the left edge's center.
+        if left_center_x >= player_x:
+            left_distance_from_player = left_center_x - player_x
+        else:
+            left_distance_from_player = player_x - left_center_x
+
+        # Calculate the distance from the player's center to the right edge's center.
+        if right_center_x >= player_x:
+            right_distance_from_player = right_center_x - player_x
+        else:
+            right_distance_from_player = player_x - right_center_x
+
+        # Return the edge with the greater distance from the player.
+        if left_distance_from_player > right_distance_from_player:
+            return left_edge
+        return right_edge
+
     def set_health_orb_spawn_point(self):
-        self.x_coordinate_at_which_health_orb_will_spawn = random.randint(0, max(0, self.MAX_WIDTH - 150))
-        self.point_at_which_health_orb_will_spawn = (
-            self.x_coordinate_at_which_health_orb_will_spawn,
-            self.MAX_HEIGHT // 2,
-        )
+        self.x_coordinate_at_which_health_orb_will_spawn = self.get_spawn_x() # A function is used to consider the distance away from the player at which the droppable should spawn.
+        self.point_at_which_health_orb_will_spawn = (self.x_coordinate_at_which_health_orb_will_spawn,self.MAX_HEIGHT // 2,)
 
     def animate_health_orb(self):
         animation = self.animations['health_orb']
@@ -206,11 +256,8 @@ class Droppable():
 
 
     def set_banana_peel_spawn_point(self):
-        self.x_coordinate_at_which_banana_peel_will_spawn = random.randint(0, max(0, self.MAX_WIDTH - 150))
-        self.point_at_which_banana_peel_will_spawn = (
-            self.x_coordinate_at_which_banana_peel_will_spawn,
-            self.MAX_HEIGHT // 2,
-        )
+        self.x_coordinate_at_which_banana_peel_will_spawn = self.get_spawn_x() # A function is used to consider the distance away from the player at which the droppable should spawn.
+        self.point_at_which_banana_peel_will_spawn = (self.x_coordinate_at_which_banana_peel_will_spawn, self.MAX_HEIGHT // 2,)
         self.banana_peel_rect.topleft = self.point_at_which_banana_peel_will_spawn
 
     def try_banana_peel_respawn(self, current_ticks):
@@ -261,12 +308,55 @@ class Droppable():
 
         if self.banana_frame_index >= len(animation): # Once the animation is complete, the program goes back to respawning the banana peel.
             self.banana_peel_finished = True
-            self.try_banana_peel_respawn(current_ticks)
+            self.banana_available = False
             return
 
         
         self.animate_banana_peel() # Actual animation of banana peel.
 
+    def spawn_random_drop(self, player): # To vary between the health orb and the banana peel.
+        self.player = player
+        current_ticks = pygame.time.get_ticks()
+
+        if ( not player.health_being_updated < 30 or not  player.health_being_updated >= 100) and random.choice((True, False)) == True: # As long as the player is in the adequate health region, and 50/50 chances are in favour of health orb, the health orb will spawn.
+            # All relevant variables for the health orb to run
+            self.active_drop = "health_orb"
+            self.health_orb_available = True
+            self.health_orb_timer_started = False
+            self.is_health_orb_collected = False
+            self.time_elapsed = current_ticks
+            self.frame_index = 0
+            self.set_health_orb_spawn_point()
+            self.health_rect.topleft = self.point_at_which_health_orb_will_spawn
+        else: # Banana Peel will spawn instead
+            # All relevant variables for the banana peel to run
+            self.active_drop = "banana_peel"
+            self.banana_available = True
+            self.banana_peel_finished = False
+            self.banana_peel_phase = "active"
+            self.banana_frame_index = 0
+            self.banana_peel_active_since = None
+            self.banana_respawn_at = None
+            self.set_banana_peel_spawn_point()
+
+    def update_with_player(self, player):
+        if self.active_drop is None:
+            self.spawn_random_drop(player) # Choosing between which droppable is spawned.
+
+        if self.active_drop == "health_orb":
+            if player.health_being_updated < 30 or player.health_being_updated >= 100: # Once outside the healing range, the health orb is no longer needed.
+                self.active_drop = None
+                return
+
+            previous_health = player.health_being_updated # Checking for change in health
+            self.health_orb_update_with_player(player) # All health orb related code will be displayed
+
+            if (player.health_being_updated > previous_health) or (self.health_orb_timer_started and pygame.time.get_ticks() - self.time_elapsed >= self.duration_for_health_orb_to_remain): 
+                self.active_drop = None # If any health is gained or once the timer has run out (First checking if timer has started, then checking if time has started.)
+        
+        else: # Spawning of banana peel
+            self.banana_peel_update_with_player(player)
+            if self.banana_peel_finished:
+                self.active_drop = None
 
 
-        # -- END OF BANANA PEEL CODE -- #

@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         
     # --- END OF STATS --- #
         global health_being_updated
-        self.health_being_updated = 20 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
+        self.health_being_updated = 100 # --> This variable changes based on the collisions it experiences against the enemy, it is less than 100 to see a change in health bar
 
     # --- ASSETS --- #  [Loading assets handled by support.py to ensure that the game loads faster and more efficiently]
         
