@@ -282,7 +282,7 @@
       Date: 26 / 11 / 2026:
             1) Displaying text of damage registered on enemy --> This was done in a similar way as that for the player, except for the y_offset. This is because the text is not clear and goes towards the enemy health bar, making the game less coherent. The text is now displayed in a yellow colour, with the Hex Code '#dfce67'
             2) Implementation of a game over screen when the player dies, and this is as follows:
-                  i) Setting the player to dead only when their health reaches zero, and playing the player death sound effect.
+                  i) Setting the player to dead only when their health reaches zero and when the death aimation of the player is fully complete, and playing the player death sound effect.
                   ii) Displaying a dimmed arena with a "GAME OVER" message and playing the game-over sound effect.
                   iii) Showing the game-over screen for at least two seconds, or for the duration of the sound effect if it is longer.
                   iv) Returning to the existing main menu after the game-over screen, without creating a separate menu.

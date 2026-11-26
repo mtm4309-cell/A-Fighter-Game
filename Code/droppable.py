@@ -55,7 +55,7 @@ class Droppable():
 
         self.set_banana_peel_spawn_point()
 
-        self.banana_available = True # Always must be False by default, else it will be annoying at the start of the game.
+        self.banana_available = True # Always must be True  by default, else the banana peel would never spawn.
         self.banana_peel_finished = False
 
         self.banana_peel_attributes = {'Duration': 4500, 'Slipping Effect': 30}

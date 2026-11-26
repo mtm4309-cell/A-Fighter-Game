@@ -153,7 +153,7 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
 
         droppable.update_with_player(me)
 
-        if not me.is_player_alive: # If the player has lost all of its health, we go into the end_game() function.
+        if not me.is_player_alive and me.frame_index == 0: # If the player has lost all of its health AND THE DEATH ANIMATION HAS FULLY PLAYED, we go into the end_game() function.
             end_game(play_width, play_height)
             playing = False
             continue
