@@ -34,12 +34,13 @@ class Enemy():
         self.damage_text = None
 
         
-        self.image = pygame.transform.scale(original_image, (500,500))
+        self.image = pygame.transform.scale(original_image, (200,200))
         self.pos = pygame.math.Vector2(self.enemy_x,self.enemy_y)
         self.rect = self.image.get_rect(topleft=self.pos)
-        self.hitbox = self.rect.inflate(-400,-350)
+        self.hitbox = self.rect.inflate(-100,-50)
 
         self.attack_radius = 60 # Kicking animation is played here
+        self.kick_hit_frames = (5, 6) # Frames where the kick is to be registered
         self.scythe_radius = 400  # For the scythe to be thrown
         self.kick_attributes = {'Damage': 10,'Knockback': 60, 'Knockback_Multiplier': 0.35}
         self.scythe_attributes = {'Damage': 15, 'Knockback': 45, 'Knockback_Multiplier': 0.3}
@@ -115,6 +116,7 @@ class Enemy():
         return (distance, direction, horizontal_pos)
 
     def get_status(self,player):
+        self.player = player
         distance,direction,horizontal_pos = self.get_player_distance_directions(player)
         if self.enemy_health > 0:  
             if self.has_been_hit:
@@ -128,6 +130,12 @@ class Enemy():
                 state = '_scythe_attack'
                 self.direction = pygame.math.Vector2()
             
+            elif (self.status in ('east_attack', 'west_attack')
+                    and self.frame_index <= self.kick_hit_frames[1]): # If enemy is still early enough in its kicking animation --> STOPS UNECESSARY RESETTING OF ANIMATION
+                horizontal_pos = self.status.split('_')[0]
+                state = '_attack'
+                self.direction = pygame.math.Vector2()
+
             elif distance <= self.attack_radius and distance < self.notice_radius:
                 state = '_attack'
                 self.direction = direction
@@ -220,8 +228,9 @@ class Enemy():
                 self.throw_scythe()
         elif 'attack' in self.status: ## ---> Selecting a specific frame of the attack naimation for sound effect to play.
             if int(self.frame_index) == 5 and self.is_kick_sound_played == False: # ---> The self frame index at which the sound is playeed has changed from '2' to '5' so that the sound effect is played at the point of contact between the kick and the player.
-                self.is_kick_sound_played = True
-                self.sound_effects()
+                if self.player.hitbox.colliderect(self.hitbox): # Sound only played when kicking actually hurts player
+                    self.is_kick_sound_played = True
+                    self.sound_effects()
 
 
         self.image = animations[int(self.frame_index)]

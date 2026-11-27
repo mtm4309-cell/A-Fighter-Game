@@ -167,7 +167,13 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if (not 'heal' in self.status) and (not '_sword_attack' in self.status) and (not 'hurt' in self.status): #--> The player cannot move when they are healing, as it is a special animation that should not be interrupted.
+        if self.has_player_slipped_on_banana_peel: # Restricting movement for when player has slipped on banana peel
+            self.direction.x = 0
+            self.direction.y = 0
+            return
+
+        # HURT ANIMATION NOT CONSIDERED TO STOP GLITCHES, AND GIVES THE PLAYER MORE FREEDOM
+        if (not 'heal' in self.status) and (not '_sword_attack' in self.status) and (self.has_player_slipped_on_banana_peel == False): #--> The player cannot move when they are healing, sword_attack, or if they have slipped, as it is a special animation that should not be interrupted.
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 self.direction.x = 1
                 self.status = 'east'
@@ -426,7 +432,7 @@ class Player(pygame.sprite.Sprite):
 
 
         if self.health_being_updated > 0: # --> In the case that the player is not dead
-            if enemy.frame_index >= 5 and enemy.frame_index <= 6: # --> The reason for this is to ensure that the player only takes damage when the enemy is in the middle of its attack animation, and not at the start or end of it.
+            if enemy.kick_hit_frames[0] <= enemy.frame_index <= enemy.kick_hit_frames[1]: # --> The player only takes damage during the kick's hit frames.
                 if 'attack' in enemy.status and 'scythe_attack' not in enemy.status: # Only considers the kicking animation
                     if self.hitbox.colliderect(enemy.hitbox) and not self.is_player_damaged: # --> Prevents repeat damage during the hurt animation.
                         self.health_being_updated -= damage

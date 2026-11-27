@@ -309,3 +309,8 @@
                   i) Adding a dark overlay on the screen, and displaying the relevant text, and playing the sound effect.
                   ii) Keeping that screen on for a set duration of time.
                   iii) Progressing into a new level with updated stats for both player and enemy --> More work is needed in this regard.
+            5) Fixing enemy kick flicker and player control during damage: [GLITCH AFFECING GAMEPLAY]
+                  i) Matching the enemy's initial sprite and hitbox sizing to its 200x200 animation frames, preventing the enemy from shifting position when its first animation frame is drawn.
+                  ii) Keeping the enemy's kick state and facing direction through the kick's contact frames, so crossing the attack-radius boundary no longer resets the animation before the hit can register.
+                  iii) Defining the kick contact window once as frames 5-6 and using that range for player damage detection, keeping damage aligned with the visible kick animation.
+                  iv) Allowing the player to move while the hurt animation plays, while retaining the hurt animation and damage immunity that prevents repeated hits during the same hurt sequence.
