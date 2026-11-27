@@ -622,8 +622,9 @@ class Player(pygame.sprite.Sprite):
         if (self.is_sword_selected and 'sword_attack' in self.status
                 and not self.sword_hit_registered 
                 and int(self.frame_index) == self.sword_hit_frame
-                and self.hitbox.colliderect(enemy.hitbox)):
-            
+                and self.hitbox.colliderect(enemy.hitbox)
+                and self.status.split('_')[0] != enemy.status.split('_')[0]):
+
             self.sword_hit_registered = True # So now damage will be given to the enemy.
         
             return True

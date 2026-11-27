@@ -78,8 +78,8 @@ class Enemy():
     def import_enemy_assets(self):
         enemy_path = "Sprites/enemy_sprite/"
 
-        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 'east_scythe_attack' : [], 
-                           'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': [], 'west_scythe_attack' : []}
+        self.animations = {'east_idle': [], 'east_walk':[], 'east_attack':[], 'east_hurt':[], 'east_scythe_attack' : [], 'east_death' : [],
+                           'west_idle': [], 'west_walk': [], 'west_attack' : [], 'west_hurt': [], 'west_scythe_attack' : [], 'west_death' : []}
 
         self.attack_animations ={'scythe':[]}
 
@@ -116,53 +116,58 @@ class Enemy():
 
     def get_status(self,player):
         distance,direction,horizontal_pos = self.get_player_distance_directions(player)
-        
-        if self.has_been_hit:
-            self.is_scythe_attacking = False
-            state = '_hurt'
-            self.direction = pygame.math.Vector2()
-            self.animation_speed = 0.20
-        
-        elif self.is_scythe_attacking: # Causes the relevant animation to be played
-            state = '_scythe_attack'
-            self.direction = pygame.math.Vector2()
-        
-        elif distance <= self.attack_radius and distance < self.notice_radius:
-            state = '_attack'
-            self.direction = direction
-        
-        elif distance <= self.scythe_radius and distance > self.attack_radius:
-            # Start a scythe attack when the cooldown has elapsed.
-            if pygame.time.get_ticks() - self.last_scythe_attack_time >= self.scythe_attack_cooldown:
-                self.last_scythe_attack_time = pygame.time.get_ticks()
-
-                if random.choice((True, False)) == True: # 50/50 chance of either enemy walking, or using scythe attack. 
-                    self.is_scythe_attacking = True
-                    self.scythe_was_thrown = False
-                    self.scythe_target_at_launch = pygame.math.Vector2(player.hitbox.center)
-                    state = '_scythe_attack'
-                    self.direction = pygame.math.Vector2()
-                else:
-                    state = '_walk'
-                    self.direction = direction
-        
-            else:
-                # Close the distance while waiting for the scythe cooldown.
-                state = '_walk' # Once the scythe attack is done, the enemy returns to walking.
+        if self.enemy_health > 0:  
+            if self.has_been_hit:
+                self.is_scythe_attacking = False
+                self.scythe_in_flight = False
+                state = '_hurt'
+                self.direction = pygame.math.Vector2()
+                self.animation_speed = 0.20
+            
+            elif self.is_scythe_attacking: # Causes the relevant animation to be played
+                state = '_scythe_attack'
+                self.direction = pygame.math.Vector2()
+            
+            elif distance <= self.attack_radius and distance < self.notice_radius:
+                state = '_attack'
                 self.direction = direction
-            # The scythe range is separate from the kick attack, so reset kick sound state.
-            self.is_kick_sound_played = False
-        
-        
-        elif distance <= self.notice_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
-            state = '_walk'
+            
+            elif distance <= self.scythe_radius and distance > self.attack_radius:
+                # Start a scythe attack when the cooldown has elapsed.
+                if pygame.time.get_ticks() - self.last_scythe_attack_time >= self.scythe_attack_cooldown:
+                    self.last_scythe_attack_time = pygame.time.get_ticks()
 
-            self.is_kick_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
-            self.direction = direction 
-        
+                    if random.choice((True, False)) == True: # 50/50 chance of either enemy walking, or using scythe attack. 
+                        self.is_scythe_attacking = True
+                        self.scythe_was_thrown = False
+                        self.scythe_target_at_launch = pygame.math.Vector2(player.hitbox.center)
+                        state = '_scythe_attack'
+                        self.direction = pygame.math.Vector2()
+                    else:
+                        state = '_walk'
+                        self.direction = direction
+            
+                else:
+                    # Close the distance while waiting for the scythe cooldown.
+                    state = '_walk' # Once the scythe attack is done, the enemy returns to walking.
+                    self.direction = direction
+                # The scythe range is separate from the kick attack, so reset kick sound state.
+                self.is_kick_sound_played = False
+            
+            
+            elif distance <= self.notice_radius: #---> When the player has only entered inside the notice radius, the enemy will start moving towards the player
+                state = '_walk'
+
+                self.is_kick_sound_played = False #---> #This ensures that when the player runs away from the enemy after invading the attack radius, the sound effect will stop.
+                self.direction = direction 
+            
+            else:
+                state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
+                self.direction = pygame.math.Vector2(0, 0)
+
         else:
-            state = '_idle' # ---> If no radii has been entered, the enemy will remain idle and not move towards the player
-            self.direction = pygame.math.Vector2(0, 0)
+            state = '_death'
+
 
         new_status = horizontal_pos + state
 

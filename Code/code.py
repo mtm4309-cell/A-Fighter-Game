@@ -120,6 +120,42 @@ def end_game(screen_width, screen_height):
             if event.type == pygame.QUIT:
                 global running
                 running = False
+                return False
+
+        # Redraw the background, dark overlay, and title each frame.
+        WIN.blit(background, (0, 0))
+        WIN.blit(overlay, (0, 0))
+        WIN.blit(game_over_title, title_rect)
+        pygame.display.flip()
+        # Limit the refresh loop to 60 frames per second.
+        clock.tick(60)
+
+    return True
+
+
+def load_into_new_level(screen_width, screen_height):
+    new_level.play()
+    pygame.display.set_caption("New Level")
+
+    background = pygame.transform.scale(arena, (screen_width, screen_height))
+    overlay = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    # Give the screen a dark overlay.
+    
+    game_over_title = second_font.render("NEW LEVEL", False, "white")
+    title_rect = game_over_title.get_rect(center=(screen_width / 2, screen_height * 0.4))
+    # Displaying the Game Over Text
+
+    screen_duration = max(2000, round(new_level.get_length() * 1000))
+    screen_started = pygame.time.get_ticks()
+    # Setting a duration for as how long the screen is to remain 
+
+    while pygame.time.get_ticks() - screen_started < screen_duration:
+        # Keep the New Level screen visible for the configured duration.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                global running
+                running = False
                 return
 
         # Redraw the background, dark overlay, and title each frame.
@@ -130,12 +166,17 @@ def end_game(screen_width, screen_height):
         # Limit the refresh loop to 60 frames per second.
         clock.tick(60)
 
+    return True
+
+
+
 def play(play_width,play_height): # This subroutine is where the actual game will occur
     playing = True
+    level = 1
     arena_bigger = pygame.transform.scale(arena, (WIDTH,HEIGHT))
     WIN.blit(arena_bigger, (0,0))
     pygame.display.flip()
-    me = Player(100,5,1,WIN)
+    me = Player(100, 5 + level - 1, 1 + level - 1, WIN)
 
     enemy_1 = Enemy(100,100,7,5,WIN)
     droppable = Droppable(WIN, me)
@@ -151,6 +192,16 @@ def play(play_width,play_height): # This subroutine is where the actual game wil
         enemy_1.enemy_update(me)
         enemy_1.update()
 
+        # Start the next level after the current enemy is defeated.
+        if enemy_1.enemy_health <= 0 and enemy_1.frame_index == 0:
+            level += 1
+            if not load_into_new_level(play_width, play_height):
+                playing = False
+                continue
+            me = Player(100, 5 + level - 1, 1 + level - 1, WIN)
+            droppable = Droppable(WIN, me)
+            enemy_1 = Enemy(100, 100, 7 + level - 1, 5 + level - 1, WIN)
+            
         droppable.update_with_player(me)
 
         if not me.is_player_alive and me.frame_index == 0: # If the player has lost all of its health AND THE DEATH ANIMATION HAS FULLY PLAYED, we go into the end_game() function.

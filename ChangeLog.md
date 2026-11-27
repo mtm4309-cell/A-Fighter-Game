@@ -300,3 +300,12 @@
                   iv) Selecting the next item only after the health orb is collected or expires, or after the banana peel finishes its animation. This reduces unnecessary CPU usage, which should make the game run faster, or reduce lagging.
                   v) Repeating the selection process for each new drop, so the item type can change from one spawn to the next. This reduces any repeats in the type of droppable that is spawned.
                   vi) Applying the same health-based decision and one-item-at-a-time rule throughout subsequent droppable cycles.
+
+      Date: 27 / 11 / 2026:
+            1) Limiting sword attack to when the direction in which both the enemy and the player are facing is not the same. 
+            2) Stopping all forms of attack on the enemy once hit
+            3) Completing animation and its implementation of the enemy dying
+            4) Implementation of a new level screen once the enemy dies, which is as follows:
+                  i) Adding a dark overlay on the screen, and displaying the relevant text, and playing the sound effect.
+                  ii) Keeping that screen on for a set duration of time.
+                  iii) Progressing into a new level with updated stats for both player and enemy --> More work is needed in this regard.
