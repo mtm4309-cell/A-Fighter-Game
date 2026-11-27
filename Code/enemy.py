@@ -330,8 +330,6 @@ class Enemy():
     def enemy_get_hurt_by_blast(self,player):
         # Detect the collision as soon as the blast overlaps the enemy.
         if player.collision_of_blast_with_enemy(self):
-            if self.has_been_hit:
-                return
             self.has_been_hit = True
                    
             if player.blast_type == "blue_blast":

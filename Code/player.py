@@ -561,7 +561,7 @@ class Player(pygame.sprite.Sprite):
 
         blast_rect = pygame.Rect(self.blast_x, self.blast_y, 150, 150) # Aids us in finding the point of collision
 
-        if not blast_rect.colliderect(enemy.hitbox): 
+        if not blast_rect.collidepoint(enemy.hitbox.center): # Making point of collision more specific
             return False # This is fed into the enemy_get_hurt_by_blast function to ensure that the enemy only takes damage when the blast collides with it.
 
         self.is_blast_released = False
@@ -678,5 +678,4 @@ class Player(pygame.sprite.Sprite):
                 self.hurt_text = None
 
     def player_update(self,enemy):
-        self.collision_of_blast_with_enemy(enemy)
         self.player_damage_health(enemy)

@@ -314,3 +314,4 @@
                   ii) Keeping the enemy's kick state and facing direction through the kick's contact frames, so crossing the attack-radius boundary no longer resets the animation before the hit can register.
                   iii) Defining the kick contact window once as frames 5-6 and using that range for player damage detection, keeping damage aligned with the visible kick animation.
                   iv) Allowing the player to move while the hurt animation plays, while retaining the hurt animation and damage immunity that prevents repeated hits during the same hurt sequence.
+            6) Fixing glitch of blast attack damage not being registered on enemy --> Initially, if the blast were to collide the enemy whilst the enemy was moving, no damage would be given. To fix this, the point of collision was made to be more specific, the centre of the hitbox of the enemy.
